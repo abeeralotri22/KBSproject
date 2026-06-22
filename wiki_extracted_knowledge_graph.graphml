@@ -8,6 +8,12 @@
   <key id="d1" for="node" attr.name="title" attr.type="string" />
   <key id="d0" for="node" attr.name="label" attr.type="string" />
   <graph edgedefault="directed">
+    <node id="عقدة_1">
+      <data key="d0">الخلية</data>
+      <data key="d1">خلية</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
     <node id="عقدة_2">
       <data key="d0">مكونات دقيقة</data>
       <data key="d1">مكونات</data>
@@ -68,31 +74,6 @@
       <data key="d2">#97C2FC</data>
       <data key="d3">10</data>
     </node>
-    <node id="wiki_def_عقدة_2">
-      <data key="d0">عضو في الجهاز الهضمي حيث
-يحدث معظم امتصاص العناصر الغذائية
-من الطعام.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: أمعاء دقيقة</data>
-      <data key="d2">#A8E6CF</data>
-    </node>
-    <node id="wiki_def_عقدة_3">
-      <data key="d0">الوحدة التركيبية والوظيفية في الكائنات
-الحية، فكل الكائنات الحية تتركب
-من خلية واحدة أو أكثر،
-وتنتج الخلايا من انقسام خلية
-بعد عملية نموها.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: الفرق بين الخلية الحيوانية والخلية النباتية</data>
-      <data key="d2">#A8E6CF</data>
-    </node>
-    <node id="wiki_def_عقدة_4">
-      <data key="d0">نواة مكيال إسلامي نواة (معالجة
-الصور) نواة (جبر خطي) نواة
-(تشريح عصبي): بنية الدماغ تتكون
-من مجموعة صغيرة نسبيا من
-الخلايا العصبية.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: النواة</data>
-      <data key="d2">#A8E6CF</data>
-    </node>
     <node id="wiki_def_عقدة_5">
       <data key="d0">كامل تسلسل الدنا لأحد الكائنات
 الحية.</data>
@@ -148,32 +129,25 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d1">نص مقتطع من ويكيبيديا لـ: الميتوكوندريا</data>
       <data key="d2">#A8E6CF</data>
     </node>
-    <edge source="عقدة_2" target="wiki_def_عقدة_2">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
-    </edge>
-    <edge source="عقدة_3" target="عقدة_2">
+    <edge source="عقدة_1" target="عقدة_2">
       <data key="d4">تتعاون</data>
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_3" target="عقدة_4">
-      <data key="d4">تدير جميع أنشطة الخلية</data>
+    <edge source="عقدة_3" target="عقدة_1">
+      <data key="d4">نوع من</data>
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_3" target="wiki_def_عقدة_3">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
+    <edge source="عقدة_4" target="عقدة_1">
+      <data key="d4">تدير جميع أنشطة الخلية</data>
+      <data key="d5">gray</data>
+      <data key="d6">1</data>
     </edge>
     <edge source="عقدة_4" target="عقدة_5">
       <data key="d4">تحويط (تحيط)</data>
       <data key="d5">gray</data>
       <data key="d6">1</data>
-    </edge>
-    <edge source="عقدة_4" target="wiki_def_عقدة_4">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
     </edge>
     <edge source="عقدة_5" target="wiki_def_عقدة_5">
       <data key="d4">تعريف</data>
@@ -189,7 +163,7 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_6" target="عقدة_3">
+    <edge source="عقدة_6" target="عقدة_1">
       <data key="d4">يحمي</data>
       <data key="d5">gray</data>
       <data key="d6">1</data>
@@ -208,7 +182,7 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d4">تعريف</data>
       <data key="d5">#2ECC71</data>
     </edge>
-    <edge source="عقدة_7" target="عقدة_3">
+    <edge source="عقدة_7" target="عقدة_1">
       <data key="d4">تملأ</data>
       <data key="d5">gray</data>
       <data key="d6">1</data>
