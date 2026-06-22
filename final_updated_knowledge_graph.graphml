@@ -1,0 +1,678 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d7" for="edge" attr.name="width" attr.type="long" />
+  <key id="d6" for="edge" attr.name="weight" attr.type="long" />
+  <key id="d5" for="edge" attr.name="color" attr.type="string" />
+  <key id="d4" for="edge" attr.name="label" attr.type="string" />
+  <key id="d3" for="node" attr.name="size" attr.type="long" />
+  <key id="d2" for="node" attr.name="color" attr.type="string" />
+  <key id="d1" for="node" attr.name="title" attr.type="string" />
+  <key id="d0" for="node" attr.name="label" attr.type="string" />
+  <graph edgedefault="directed">
+    <node id="عقدة_2">
+      <data key="d0">مكونات دقيقة</data>
+      <data key="d1">مكونات</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_3">
+      <data key="d0">الخلية الحيوانية</data>
+      <data key="d1">خلية</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_4">
+      <data key="d0">النواة</data>
+      <data key="d1">عضو خلوي</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_5">
+      <data key="d0">المادة الوراثية</data>
+      <data key="d1">مادة</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_6">
+      <data key="d0">غشاء بلازمي</data>
+      <data key="d1">عضو خلوي</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_7">
+      <data key="d0">السيتوبلازم</data>
+      <data key="d1">عضو خلوي</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_8">
+      <data key="d0">الغذاء</data>
+      <data key="d1">مادة</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_9">
+      <data key="d0">الفضلات</data>
+      <data key="d1">مادة</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_10">
+      <data key="d0">العضيات</data>
+      <data key="d1">مكونات</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="عقدة_11">
+      <data key="d0">الميتوكوندريا</data>
+      <data key="d1">عضو خلوي</data>
+      <data key="d2">#97C2FC</data>
+      <data key="d3">10</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_1">
+      <data key="d0">خط</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_2">
+      <data key="d0">مونوريل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_3">
+      <data key="d0">شرق</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_4">
+      <data key="d0">النيل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_5">
+      <data key="d0">(مونوريل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_2_sub_6">
+      <data key="d0">العاصمة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_1">
+      <data key="d0">الوحدة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_2">
+      <data key="d0">التركيبية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_3">
+      <data key="d0">والوظيفية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_4">
+      <data key="d0">في</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_5">
+      <data key="d0">الكائنات</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_3_sub_6">
+      <data key="d0">الحية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_1">
+      <data key="d0">نواة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_2">
+      <data key="d0">مكيال</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_3">
+      <data key="d0">إسلامي</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_4">
+      <data key="d0">نواة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_5">
+      <data key="d0">(معالجة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_4_sub_6">
+      <data key="d0">الصور)</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_1">
+      <data key="d0">كامل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_2">
+      <data key="d0">تسلسل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_3">
+      <data key="d0">الدنا</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_4">
+      <data key="d0">لأحد</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_5">
+      <data key="d0">الكائنات</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_5_sub_6">
+      <data key="d0">الحية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_1">
+      <data key="d0">غشاء</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_2">
+      <data key="d0">شفاف</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_3">
+      <data key="d0">ورقيق</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_4">
+      <data key="d0">ويساوي</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_5">
+      <data key="d0">سُمكهُ</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_6_sub_6">
+      <data key="d0">100</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_1">
+      <data key="d0">كلُّ</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_2">
+      <data key="d0">المواد</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_3">
+      <data key="d0">داخل</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_4">
+      <data key="d0">الخلية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_5">
+      <data key="d0">ويحيط</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_7_sub_6">
+      <data key="d0">بها</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_1">
+      <data key="d0">أي</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_2">
+      <data key="d0">مادة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_3">
+      <data key="d0">يتم</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_4">
+      <data key="d0">استهلاكها</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_5">
+      <data key="d0">لتوفير</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_8_sub_6">
+      <data key="d0">الدعم</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_1">
+      <data key="d0">أي</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_2">
+      <data key="d0">مواد</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_3">
+      <data key="d0">زائدة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_4">
+      <data key="d0">وغير</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_5">
+      <data key="d0">مرغوبة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_9_sub_6">
+      <data key="d0">ويمكن</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_1">
+      <data key="d0">الأجزاء</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_2">
+      <data key="d0">أو</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_3">
+      <data key="d0">الأجسام</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_4">
+      <data key="d0">الحية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_5">
+      <data key="d0">الموجودة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_10_sub_6">
+      <data key="d0">في</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_1">
+      <data key="d0">عضية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_2">
+      <data key="d0">خلوية</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_3">
+      <data key="d0">مزدوجة</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_4">
+      <data key="d0">الغشاء</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_5">
+      <data key="d0">تتواجد</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <node id="local_def_عقدة_11_sub_6">
+      <data key="d0">لدى</data>
+      <data key="d1">جزء_من_التعريف</data>
+      <data key="d2">#C4E17F</data>
+    </node>
+    <edge source="عقدة_2" target="local_def_عقدة_2_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_3" target="عقدة_2">
+      <data key="d4">تتعاون</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_3" target="عقدة_4">
+      <data key="d4">تدير جميع أنشطة الخلية</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_3" target="local_def_عقدة_3_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_4" target="عقدة_5">
+      <data key="d4">تحويط (تحيط)</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_4" target="local_def_عقدة_4_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_5" target="local_def_عقدة_5_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_6" target="عقدة_4">
+      <data key="d4">يغلف</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_6" target="عقدة_7">
+      <data key="d4">يغلف</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_6" target="عقدة_3">
+      <data key="d4">يحمي</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_6" target="عقدة_8">
+      <data key="d4">ينظم دخول</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_6" target="عقدة_9">
+      <data key="d4">ينظم خروج</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_6" target="local_def_عقدة_6_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_7" target="عقدة_3">
+      <data key="d4">تملأ</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_7" target="عقدة_10">
+      <data key="d4">تحتضن</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_7" target="local_def_عقدة_7_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_8" target="local_def_عقدة_8_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_9" target="local_def_عقدة_9_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_10" target="عقدة_11">
+      <data key="d4">مثل</data>
+      <data key="d5">gray</data>
+      <data key="d7">1</data>
+    </edge>
+    <edge source="عقدة_10" target="local_def_عقدة_10_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="عقدة_11" target="local_def_عقدة_11_sub_1">
+      <data key="d4">تعريفه</data>
+      <data key="d5">#2ECC71</data>
+      <data key="d6">2</data>
+    </edge>
+    <edge source="local_def_عقدة_2_sub_1" target="local_def_عقدة_2_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_2_sub_2" target="local_def_عقدة_2_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_2_sub_3" target="local_def_عقدة_2_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_2_sub_4" target="local_def_عقدة_2_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_2_sub_5" target="local_def_عقدة_2_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_3_sub_1" target="local_def_عقدة_3_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_3_sub_2" target="local_def_عقدة_3_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_3_sub_3" target="local_def_عقدة_3_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_3_sub_4" target="local_def_عقدة_3_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_3_sub_5" target="local_def_عقدة_3_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_4_sub_1" target="local_def_عقدة_4_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_4_sub_2" target="local_def_عقدة_4_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_4_sub_3" target="local_def_عقدة_4_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_4_sub_4" target="local_def_عقدة_4_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_4_sub_5" target="local_def_عقدة_4_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_5_sub_1" target="local_def_عقدة_5_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_5_sub_2" target="local_def_عقدة_5_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_5_sub_3" target="local_def_عقدة_5_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_5_sub_4" target="local_def_عقدة_5_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_5_sub_5" target="local_def_عقدة_5_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_6_sub_1" target="local_def_عقدة_6_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_6_sub_2" target="local_def_عقدة_6_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_6_sub_3" target="local_def_عقدة_6_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_6_sub_4" target="local_def_عقدة_6_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_6_sub_5" target="local_def_عقدة_6_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_7_sub_1" target="local_def_عقدة_7_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_7_sub_2" target="local_def_عقدة_7_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_7_sub_3" target="local_def_عقدة_7_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_7_sub_4" target="local_def_عقدة_7_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_7_sub_5" target="local_def_عقدة_7_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_8_sub_1" target="local_def_عقدة_8_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_8_sub_2" target="local_def_عقدة_8_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_8_sub_3" target="local_def_عقدة_8_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_8_sub_4" target="local_def_عقدة_8_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_8_sub_5" target="local_def_عقدة_8_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_9_sub_1" target="local_def_عقدة_9_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_9_sub_2" target="local_def_عقدة_9_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_9_sub_3" target="local_def_عقدة_9_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_9_sub_4" target="local_def_عقدة_9_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_9_sub_5" target="local_def_عقدة_9_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_10_sub_1" target="local_def_عقدة_10_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_10_sub_2" target="local_def_عقدة_10_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_10_sub_3" target="local_def_عقدة_10_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_10_sub_4" target="local_def_عقدة_10_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_10_sub_5" target="local_def_عقدة_10_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_11_sub_1" target="local_def_عقدة_11_sub_2">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_11_sub_2" target="local_def_عقدة_11_sub_3">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_11_sub_3" target="local_def_عقدة_11_sub_4">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_11_sub_4" target="local_def_عقدة_11_sub_5">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+    <edge source="local_def_عقدة_11_sub_5" target="local_def_عقدة_11_sub_6">
+      <data key="d4">ثم</data>
+      <data key="d5">#B2DBBF</data>
+    </edge>
+  </graph>
+</graphml>
