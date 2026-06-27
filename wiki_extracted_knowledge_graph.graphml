@@ -74,60 +74,65 @@
       <data key="d2">#97C2FC</data>
       <data key="d3">10</data>
     </node>
-    <node id="wiki_def_عقدة_5">
-      <data key="d0">كامل تسلسل الدنا لأحد الكائنات
-الحية.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: المادة الوراثية</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_17">
+      <data key="d0">كامل تسلسل الدنا</data>
+      <data key="d1">مادة</data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_6">
-      <data key="d0">غشاء شفاف ورقيق ويساوي سُمكهُ
-100 انكستروم يُحيط بالخلية ويفصلها
-عن البيئة الخارجية.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: غشاء بلازمي</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_18">
+      <data key="d0">غشاء رقيق و شفاف</data>
+      <data key="d1">عضو خلوي</data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_7">
-      <data key="d0">كلُّ المواد داخل الخلية ويحيط
-بها الغشاء الخلوي، باستثناء نواة
-الخلية في خلايا حقيقيات النوى
-(الإنجليزية: Eukaryotic cells)، أمَّا في
-الخلايا بدائيات النوى (الإنجليزية: Prokaryotic
-cells) فلا يوجد نواة مُحدَّدة
-بغشاء نووي، ولذلك فإنَّ تعريف
-السيتوبلازم يمتدُّ ليشمل المادة الوراثية
-للخلية في خلايا بدائيات النوى.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: السيتوبلازم</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_19">
+      <data key="d0">اجسام حية</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_8">
-      <data key="d0">أي مادة يتم استهلاكها لتوفير
-الدعم الغذائي للكائن الحي.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: الغذاء</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_20">
+      <data key="d0">شبكة بلازمية داخلية</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_9">
-      <data key="d0">أي مواد زائدة وغير مرغوبة،
-ويمكن أن تعني القمامة أو
-المهملات.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: الفضلات</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_21">
+      <data key="d0">جهاز غولجي</data>
+      <data key="d1">مكونات </data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_10">
-      <data key="d0">الأجزاء أو الأجسام الحية الموجودة
-في سيتوبلازم الخلية حقيقية النواة
-بشكل عام تشمل كل من
-الشبكة البلازمية الداخلية وجهاز جولجي،
-المايتوكندريا، البلاستيدات، الجسيمات الحالة، هيكل
-الخلية، الجسيم الحركي والفجوات.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: العضيات</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_22">
+      <data key="d0">بلاستيدات</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
     </node>
-    <node id="wiki_def_عقدة_11">
-      <data key="d0">عضية خلوية مزدوجة الغشاء تتواجد
-لدى معظم الكائنات حقيقية النوى.</data>
-      <data key="d1">نص مقتطع من ويكيبيديا لـ: الميتوكوندريا</data>
-      <data key="d2">#A8E6CF</data>
+    <node id="K_عقدة_23">
+      <data key="d0">جسيمات حالة</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
+    </node>
+    <node id="K_عقدة_24">
+      <data key="d0">هيكل الخلية</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
+    </node>
+    <node id="K_عقدة_25">
+      <data key="d0">جسيم حركي</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
+    </node>
+    <node id="K_عقدة_26">
+      <data key="d0">فجوات</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
+    </node>
+    <node id="K_عقدة_27">
+      <data key="d0">معظم الكائنات حقيقة النوى</data>
+      <data key="d1"> كائنات حية </data>
+      <data key="d2">blue</data>
+    </node>
+    <node id="K_عقدة_28">
+      <data key="d0"> عضية مزدوجة الغشاء</data>
+      <data key="d1"> مكونات</data>
+      <data key="d2">blue</data>
     </node>
     <edge source="عقدة_1" target="عقدة_2">
       <data key="d4">تتعاون</data>
@@ -149,9 +154,9 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_5" target="wiki_def_عقدة_5">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
+    <edge source="عقدة_5" target="K_عقدة_17">
+      <data key="d4">هي</data>
+      <data key="d5">green</data>
     </edge>
     <edge source="عقدة_6" target="عقدة_4">
       <data key="d4">يغلف</data>
@@ -164,8 +169,8 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d6">1</data>
     </edge>
     <edge source="عقدة_6" target="عقدة_1">
-      <data key="d4">يحمي</data>
-      <data key="d5">gray</data>
+      <data key="d4"> يفصل عن البيئة الخارجية</data>
+      <data key="d5">green</data>
       <data key="d6">1</data>
     </edge>
     <edge source="عقدة_6" target="عقدة_8">
@@ -178,9 +183,9 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_6" target="wiki_def_عقدة_6">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
+    <edge source="عقدة_6" target="K_عقدة_18">
+      <data key="d4"> هو</data>
+      <data key="d5">green</data>
     </edge>
     <edge source="عقدة_7" target="عقدة_1">
       <data key="d4">تملأ</data>
@@ -192,30 +197,54 @@ cells) فلا يوجد نواة مُحدَّدة
       <data key="d5">gray</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_7" target="wiki_def_عقدة_7">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
-    </edge>
-    <edge source="عقدة_8" target="wiki_def_عقدة_8">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
-    </edge>
-    <edge source="عقدة_9" target="wiki_def_عقدة_9">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
-    </edge>
     <edge source="عقدة_10" target="عقدة_11">
-      <data key="d4">مثل</data>
-      <data key="d5">gray</data>
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
       <data key="d6">1</data>
     </edge>
-    <edge source="عقدة_10" target="wiki_def_عقدة_10">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
+    <edge source="عقدة_10" target="عقدة_7">
+      <data key="d4"> توجد في</data>
+      <data key="d5">green</data>
     </edge>
-    <edge source="عقدة_11" target="wiki_def_عقدة_11">
-      <data key="d4">تعريف</data>
-      <data key="d5">#2ECC71</data>
+    <edge source="عقدة_10" target="K_عقدة_19">
+      <data key="d4"> هي</data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_20">
+      <data key="d4"> تشمل</data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_21">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_22">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_23">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_24">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_25">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_10" target="K_عقدة_26">
+      <data key="d4"> تشمل </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_11" target="K_عقدة_27">
+      <data key="d4"> تتواجد في  </data>
+      <data key="d5">green</data>
+    </edge>
+    <edge source="عقدة_11" target="K_عقدة_28">
+      <data key="d4"> هي </data>
+      <data key="d5">green</data>
     </edge>
   </graph>
 </graphml>
