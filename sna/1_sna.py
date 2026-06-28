@@ -40,7 +40,7 @@
 import networkx as nx
 import json
 
-G = nx.read_graphml("../knowledge_graph.graphml")
+G = nx.read_graphml("../create&update/knowledge_graph.graphml")
 # G = nx.read_graphml("wiki_extracted_knowledge_graph.graphml")
 # build id → label map
 id_to_label = {node: G.nodes[node].get("label", node) for node in G.nodes()}

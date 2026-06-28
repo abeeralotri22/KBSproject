@@ -2,7 +2,7 @@ import networkx as nx
 import json
 import os
 
-G = nx.read_graphml("../knowledge_graph.graphml")
+G = nx.read_graphml("../create&update/knowledge_graph.graphml")
 id_to_label = {n: G.nodes[n].get("label", n) for n in G.nodes()}
 label_to_id = {v: k for k, v in id_to_label.items()}
 

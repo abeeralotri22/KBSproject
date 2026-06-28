@@ -3,7 +3,7 @@ import json
 import os
 
 
-G = nx.read_graphml("../knowledge_graph.graphml")
+G = nx.read_graphml("../create&update/knowledge_graph.graphml")
 id_to_label = {n: G.nodes[n].get("label", n) for n in G.nodes()}
 
 with open("./results/sna_results.json", "r", encoding="utf-8") as f:
@@ -163,10 +163,10 @@ with open("./results/criticality_scores.json", "w", encoding="utf-8") as f:
         "secondary":          secondary,
     }, f, ensure_ascii=False, indent=4)
 
-print("\n saved to results/removal_impact/ && results/criticality_scores.json")
+print("\nsaved to results/removal_impact/ && results/criticality_scores.json")
 
 #  story elements
-# الزمان: not derivable from graph structure 
+# الزمان: not derivable from graph structure
 
 # المكان: المحور node (highest in-degree = the world everything happens inside)
 # الأزمة: the removal scenario of the البطل reveals the story conflict

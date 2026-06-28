@@ -2,7 +2,7 @@ import networkx as nx
 import json
 from pyvis.network import Network
 
-G = nx.read_graphml("../knowledge_graph.graphml")
+G = nx.read_graphml("../create&update/knowledge_graph.graphml")
 id_to_label = {node: G.nodes[node].get("label", node) for node in G.nodes()}
 label_to_id = {v: k for k, v in id_to_label.items()}
 
