@@ -2,6 +2,7 @@ import networkx as nx
 import json
 import os
 
+# هاد عامل حالو جينيرالايزد
 G = nx.read_graphml("../create&update/filtered_knowledge_graph.graphml")
 id_to_label = {n: G.nodes[n].get("label", n) for n in G.nodes()}
 label_to_id = {v: k for k, v in id_to_label.items()}
@@ -11,37 +12,53 @@ with open("./results/criticality_scores.json", "r", encoding="utf-8") as f:
 
 hero = crit["hero"]
 pivot = crit["pivot"]
-main = set(crit["main"])
+important = set(crit["important_nodes"])
 
 hero_id = label_to_id[hero]
 pivot_id = label_to_id[pivot]
 
-#  find conflict nodes and their edges
-# X must be رئيسية AND (X → المحور) AND (البطل → X)
-conflict_nodes = [
-    X for X in main
-    if G.has_edge(label_to_id[X], pivot_id) and G.has_edge(hero_id, label_to_id[X])
+conflict_actors = [
+    X for X in (important - {hero, pivot})
+    if G.has_edge(label_to_id[X], pivot_id)
 ]
 
+conflicts = []
 conflict_edges = []
-for X in conflict_nodes:
+
+for X in conflict_actors:
     X_id = label_to_id[X]
+    reactors = [
+        Y for Y in important
+        if Y != X and G.has_edge(label_to_id[Y], X_id)
+    ]
+
+    if hero in reactors:
+        narrative = "فعل_ورد_فعل"
+    elif reactors:
+        narrative = "فعل_ورد_فعل_غير_مباشر"
+    else:
+        narrative = "تنافس"
+
+    conflicts.append({
+        "actor":          X,
+        "reactors":       reactors,
+        "narrative_type": narrative,
+    })
+
     conflict_edges.append({
-        "source":   X,
-        "target":   pivot,
-        "src_id":   X_id,
-        "tgt_id":   pivot_id,
+        "source": X, "target": pivot,
+        "src_id": X_id, "tgt_id": pivot_id,
         "relation": G.edges[X_id, pivot_id].get("label", ""),
-        "type":     "فعل",
+        "type": "فعل",
     })
-    conflict_edges.append({
-        "source":   hero,
-        "target":   X,
-        "src_id":   hero_id,
-        "tgt_id":   X_id,
-        "relation": G.edges[hero_id, X_id].get("label", ""),
-        "type":     "رد فعل",
-    })
+    for Y in reactors:
+        Y_id = label_to_id[Y]
+        conflict_edges.append({
+            "source": Y, "target": X,
+            "src_id": Y_id, "tgt_id": X_id,
+            "relation": G.edges[Y_id, X_id].get("label", ""),
+            "type": "رد فعل",
+        })
 
 #  baseline metrics
 baseline_components = nx.number_weakly_connected_components(G)
@@ -117,18 +134,10 @@ for edge in conflict_edges:
 
 results.sort(key=lambda x: -x["disruption_score"])
 
-# print(f"=== تأثير إزالة وصلات الصراع ({len(results)}) ===")
-# for r in results:
-#     broken = "✗ مقطوع" if r["path_broken"] else "✓ بديل موجود"
-#     print(
-#         f"  [{r['conflict_type']}] {r['source']} → {r['target']}  ({r['relation']})")
-#     print(
-#         f"    disruption={r['disruption_score']}  {broken}  reach_loss={r['reachability_loss']}")
-
 with open("./results/edge_impact_summary.json", "w", encoding="utf-8") as f:
     json.dump({
-        "conflict_nodes":       conflict_nodes,
-        "edges_by_disruption":  results,
+        "conflicts":           conflicts,
+        "edges_by_disruption": results,
     }, f, ensure_ascii=False, indent=4)
 
-print("\n✓ saved to results/edge_impact/ && results/edge_impact_summary.json")
+print("\n saved to results/edge_impact/ && results/edge_impact_summary.json")

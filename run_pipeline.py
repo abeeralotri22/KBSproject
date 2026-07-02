@@ -7,12 +7,15 @@ SNA = os.path.join(ROOT, "sna")
 
 steps = [
     (ROOT, "createandupdategraph.py"),
+    (ROOT, "filter_graph.py"),
     (SNA,  "1_sna.py"),
-    (SNA,  "2_sna_impact.py"),
-    (SNA,  "3_sna_edge_impact.py"),
-    # (SNA,  "sna_edge_impact.py"),
-    (SNA,  "4_sna_plot_graph.py"),
+    # (SNA,  "2_sna_impact.py"),
+    (SNA,  "sna_impact2.py"),
+    # (SNA,  "3_sna_edge_impact.py"),
+    (SNA,  "sna_edge_impact2.py"),
+    # (SNA,  "4_sna_plot_graph.py"),
     # (SNA,  "sna_plot_graph.py"),
+    (SNA,  "sna_plot_graph_filtered.py"),
 ]
 
 for cwd, script in steps:
