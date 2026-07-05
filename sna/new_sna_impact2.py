@@ -2,10 +2,14 @@ import networkx as nx
 import json
 import os
 
-from graph_rules import find_cycles, cycle_edges_entries_exits, structural_core_nodes
+from new_graph_rules import (
+    find_cycles, cycle_edges_entries_exits, structural_core_nodes,
+    agency_score, convergence_score,
+)
 
 G = nx.read_graphml("../create&update/filtered_knowledge_graph.graphml")
 id_to_label = {n: G.nodes[n].get("label", n) for n in G.nodes()}
+label_to_id = {v: k for k, v in id_to_label.items()}
 
 with open("./results/sna_results.json", "r", encoding="utf-8") as f:
     sna = json.load(f)
@@ -52,18 +56,8 @@ zaman_nodes = [
     if "زمان" in G.nodes[n].get("title", "")
 ]
 
-# agency score
-
-
-def agency_score(label):
-    node_id = next(n for n, l in id_to_label.items() if l == label)
-    reached = {label_to_cluster[id_to_label[v]]
-               for _, v in G.out_edges(node_id)
-               if id_to_label[v] in label_to_cluster}
-    return len(reached)
-
-
-agency = {label: agency_score(label) for label in out_degree}
+agency = {label: agency_score(G, id_to_label, label_to_cluster, label_to_id, label)
+          for label in out_degree}
 
 # disruption simulation
 total_edges = G.number_of_edges()
@@ -122,7 +116,7 @@ for node_id in G.nodes():
 
 #  assign roles (NEW RULES)
 
-# البطل (NEW): prioritize source nodes (in_degree=0) in the important set.
+# البطل: prioritize source nodes (in_degree=0) in the important set.
 # A source node has no incoming edges — it initiates the action, nothing acts on it first.
 # If no source node is important, fall back to highest agency (original rule).
 place_set = set(makan_nodes)
@@ -134,19 +128,26 @@ else:
     hero = max(important,
                key=lambda l: (agency[l], out_degree.get(l, 0), disruption_scores.get(l, 0)))
 
-# المحور (NEW): highest disruption among remaining important nodes, excluding مكان nodes.
-# المحور is the structural world-pivot — most disruptive to remove — not necessarily the place.
+# المحور: highest disruption among remaining important nodes, excluding مكان nodes —
+# but only if it's a genuine convergence point. A single-hero radial graph (several
+# independent branches fanning out from one source, e.g. digestion, blood circulation)
+# has no real "world everything happens around" — forcing a pivot onto whichever branch
+# node scores highest disruption fabricates a role the graph doesn't structurally have.
+# convergence_score (edges arriving from ≥2 *different* clusters, not just the hero's own
+# branch) is what distinguishes a real hub (e.g. الخلية, fed by 3 independent clusters)
+# from a mid-branch step that merely happens to fan back out to several children.
 remaining = important - {hero}
 remaining_non_place = remaining - \
     place_set if (remaining - place_set) else remaining
-pivot = max(remaining_non_place,
-            key=lambda l: (disruption_scores.get(l, 0), in_degree.get(l, 0)))
+pivot_candidate = max(remaining_non_place,
+                      key=lambda l: (disruption_scores.get(l, 0), in_degree.get(l, 0)))
+pivot = pivot_candidate if convergence_score(
+    G, id_to_label, label_to_cluster, label_to_id, pivot_candidate) >= 2 else None
 
-# رئيسية (NEW): remaining important nodes with above-average agency among themselves.
-# Old rule used a hardcoded "agency >= 2" — fails on small/linear graphs where no
-# node reaches 2+ clusters, leaving رئيسية empty. Now the threshold is relative to
-# the candidate pool, with a floor of 1 (must reach at least one other cluster).
-after_hero_pivot = remaining - {pivot}
+# رئيسية: remaining important nodes with above-average agency among themselves.
+# The threshold is relative to the candidate pool, with a floor of 1 (must reach at
+# least one other cluster).
+after_hero_pivot = remaining - ({pivot} if pivot else set())
 remaining_agencies = [agency[l] for l in after_hero_pivot]
 avg_remaining_agency = (sum(remaining_agencies) /
                         len(remaining_agencies)) if remaining_agencies else 0
@@ -175,7 +176,8 @@ if promoted:
 
 roles = {}
 roles[hero] = "البطل"
-roles[pivot] = "المحور"
+if pivot:
+    roles[pivot] = "المحور"
 for l in main_chars:
     roles[l] = "رئيسية"
 for l in secondary:

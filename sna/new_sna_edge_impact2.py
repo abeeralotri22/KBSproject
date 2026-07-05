@@ -2,7 +2,7 @@ import networkx as nx
 import json
 import os
 
-from graph_rules import find_cycles, cycle_edges_entries_exits, detect_hub_conflicts
+from new_graph_rules import find_cycles, cycle_edges_entries_exits, classify_narrative_conflicts
 
 # هاد عامل حالو جينيرالايزد
 G = nx.read_graphml("../create&update/filtered_knowledge_graph.graphml")
@@ -14,94 +14,20 @@ with open("./results/criticality_scores.json", "r", encoding="utf-8") as f:
 
 hero = crit["hero"]
 pivot = crit["pivot"]
-important = set(crit["important_nodes"])
-
-hero_id = label_to_id[hero]
-pivot_id = label_to_id[pivot]
-
-# old inline hub-conflict logic — now shared via graph_rules.detect_hub_conflicts()
-# so sna_plot_graph.py doesn't have to duplicate it
-# conflict_actors = [
-#     X for X in (important - {hero, pivot})
-#     if G.has_edge(label_to_id[X], pivot_id)
-# ]
-#
-# conflicts = []
-# conflict_edges = []
-#
-# for X in conflict_actors:
-#     X_id = label_to_id[X]
-#     reactors = [
-#         Y for Y in important
-#         if Y != X and G.has_edge(label_to_id[Y], X_id)
-#     ]
-#
-#     if hero in reactors:
-#         narrative = "فعل_ورد_فعل"
-#     elif reactors:
-#         narrative = "فعل_ورد_فعل_غير_مباشر"
-#     else:
-#         narrative = "تنافس"
-#
-#     conflicts.append({
-#         "actor":          X,
-#         "reactors":       reactors,
-#         "narrative_type": narrative,
-#     })
-#
-#     conflict_edges.append({
-#         "source": X, "target": pivot,
-#         "src_id": X_id, "tgt_id": pivot_id,
-#         "relation": G.edges[X_id, pivot_id].get("label", ""),
-#         "type": "فعل",
-#     })
-#     for Y in reactors:
-#         Y_id = label_to_id[Y]
-#         conflict_edges.append({
-#             "source": Y, "target": X,
-#             "src_id": Y_id, "tgt_id": X_id,
-#             "relation": G.edges[Y_id, X_id].get("label", ""),
-#             "type": "رد فعل",
-#         })
-
-# hub-convergence conflicts: important actors acting on the pivot, and reactors acting on them
-hub_conflicts = detect_hub_conflicts(G, id_to_label, label_to_id, important, hero, pivot)
-
-conflicts = [
-    {"actor": c["actor"], "reactors": c["reactors"], "narrative_type": c["narrative_type"]}
-    for c in hub_conflicts
-]
+roles = crit["roles"]
 
 conflict_edges = []
 seen_edges = set()
-for c in hub_conflicts:
-    for edge in [c["action_edge"], *c["reaction_edges"]]:
-        key = (edge["source"], edge["target"])
-        if key in seen_edges:
-            continue
-        seen_edges.add(key)
-        conflict_edges.append({
-            "source": edge["source"], "target": edge["target"],
-            "src_id": edge["src_id"], "tgt_id": edge["tgt_id"],
-            "relation": edge["relation"],
-            "type": edge["conflict_type"],
-        })
 
-# feedback-loop conflicts: cyclic edges are a second, independent structural pattern —
-# they don't need a pivot/hero to be meaningful, just a cycle in the graph
+# feedback-loop edges are a more specific structural signal than a role pairing —
+# compute them first so a cycle edge that also happens to connect two important
+# roles keeps its حلقة/دخول/امتداد tag instead of being reclassified below
 cycles = find_cycles(G, id_to_label)
-cycle_edge_set, entry_edge_set, exit_edge_set = cycle_edges_entries_exits(G, id_to_label, cycles)
-
-if cycles:
-    conflicts.append({
-        "cycles":         cycles,
-        "narrative_type": "حلقة_تغذية_راجعة",
-    })
+cycle_edge_set, entry_edge_set, exit_edge_set = cycle_edges_entries_exits(
+    G, id_to_label, cycles)
 
 for source, target in sorted(cycle_edge_set | entry_edge_set | exit_edge_set):
     key = (source, target)
-    if key in seen_edges:
-        continue
     seen_edges.add(key)
     if key in cycle_edge_set:
         edge_type = "حلقة"
@@ -114,6 +40,29 @@ for source, target in sorted(cycle_edge_set | entry_edge_set | exit_edge_set):
         "src_id": label_to_id[source], "tgt_id": label_to_id[target],
         "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
         "type": edge_type,
+    })
+
+# the hero doesn't fight the pivot — a main character that acts on the pivot or on another
+# main character ("فعل") is the one raising a conflict, and it's only a real conflict
+# ("صراع_مع_البطل") if the hero itself has a direct edge to that actor
+for edge in classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot):
+    key = (edge["source"], edge["target"])
+    if key in seen_edges:
+        continue
+    seen_edges.add(key)
+    conflict_edges.append(edge)
+
+conflicts_by_type = {}
+for edge in conflict_edges:
+    conflicts_by_type.setdefault(edge["type"], []).append(
+        {"source": edge["source"], "target": edge["target"], "relation": edge["relation"]})
+
+conflicts = [{"type": t, "edges": edges}
+             for t, edges in conflicts_by_type.items()]
+if cycles:
+    conflicts.append({
+        "cycles":         cycles,
+        "narrative_type": "feedback loop",
     })
 
 #  baseline metrics

@@ -5,10 +5,12 @@ import requests
 # import time
 
 
-with open('nlp/nlp_output.json', 'r', encoding='utf-8') as f:  # علوم1
-    # with open('nlp/nlp2_output.json', 'r', encoding='utf-8') as f: # تنوع بيئي
-    # with open('nlp/nlp3_output.json', 'r', encoding='utf-8') as f: # التاريخ
-    # with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2
+# with open('nlp/nlp_output.json', 'r', encoding='utf-8') as f:  # علوم1
+# with open('nlp/nlp2_output.json', 'r', encoding='utf-8') as f: # تنوع بيئي
+# with open('nlp/nlp3_output.json', 'r', encoding='utf-8') as f: # التاريخ
+# with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2
+with open('nlp/nlp5_output.json', 'r', encoding='utf-8') as f:  # علوم3
+    # with open('nlp/nlp6_output.json', 'r', encoding='utf-8') as f:  # علوم4
     data = json.load(f)
 
 G = nx.DiGraph()

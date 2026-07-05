@@ -12,69 +12,24 @@ with open("./results/criticality_scores.json", "r", encoding="utf-8") as f:
 roles = crit["roles"]
 hero = crit["hero"]
 pivot = crit["pivot"]
-important = set(crit["important_nodes"])
-
-hero_id = label_to_id[hero]
-pivot_id = label_to_id[pivot]
-
-# old inline conflict detection — duplicated the same logic as sna_edge_impact2.py.
-# Now both read the single computation from graph_rules / edge_impact_summary.json instead.
-# #  generalizable conflict detection
-# #  conflict actors = important nodes (not hero, not pivot) with edge → pivot
-# conflict_actors = [
-#     X for X in (important - {hero, pivot})
-#     if G.has_edge(label_to_id[X], pivot_id)
-# ]
-#
-# #  for each actor, find reactors = important nodes with edge → actor
-# conflicts = []
-# for X in conflict_actors:
-#     X_id = label_to_id[X]
-#     reactors = [Y for Y in important if G.has_edge(label_to_id[Y], X_id)]
-#
-#     if hero in reactors:
-#         narrative = "فعل_ورد_فعل"
-#     elif reactors:
-#         narrative = "فعل_ورد_فعل_غير_مباشر"
-#     else:
-#         narrative = "تنافس"
-#
-#     conflicts.append({
-#         "actor":          X,
-#         "reactors":       reactors,
-#         "narrative_type": narrative,
-#         "action_edge":    {
-#             "source": X, "target": pivot,
-#             "relation": G.edges[X_id, pivot_id].get("label", ""),
-#         },
-#         "reaction_edges": [
-#             {"source": Y, "target": X,
-#              "relation": G.edges[label_to_id[Y], X_id].get("label", "")}
-#             for Y in reactors
-#         ],
-#     })
-#
-# # build sets for fast edge lookup
-# action_edges = {(c["actor"], pivot) for c in conflicts}
-# reaction_edges = {(Y, c["actor"]) for c in conflicts for Y in c["reactors"]}
 
 with open("./results/edge_impact_summary.json", "r", encoding="utf-8") as f:
     edge_impact = json.load(f)
 
-conflicts = [c for c in edge_impact["conflicts"] if "actor" in c]
+conflicts = [c for c in edge_impact["conflicts"] if "type" in c]
 cycles = [c for c in edge_impact["conflicts"] if "cycles" in c]
 
-# build sets for fast edge lookup, one per conflict_type produced by sna_edge_impact2.py
+# build sets for fast edge lookup, one per conflict_type produced by new_sna_edge_impact2.py
 edges_by_type = {}
 for e in edge_impact["edges_by_disruption"]:
     edges_by_type.setdefault(e["conflict_type"], set()).add(
         (e["source"], e["target"]))
 
-action_edges = edges_by_type.get("فعل", set())
-reaction_edges = edges_by_type.get("رد فعل", set())
 loop_edges = edges_by_type.get("حلقة", set())
 entry_edges = edges_by_type.get("دخول", set())
 extension_edges = edges_by_type.get("امتداد", set())
+hero_conflict_edges = edges_by_type.get("صراع_مع_البطل", set())
+action_edges = edges_by_type.get("فعل", set())
 
 
 node_color = {"البطل": "#FF4500", "المحور": "#90D5FF",
@@ -84,16 +39,16 @@ node_size = {"البطل": 40,        "المحور": 35,
 
 
 def edge_style(s, t):
-    if (s, t) in action_edges:
-        return {"color": "#E67E22", "width": 3, "type": "فعل"}
-    if (s, t) in reaction_edges:
-        return {"color": "#E74C3C", "width": 3, "type": "رد فعل"}
+    if (s, t) in hero_conflict_edges:
+        return {"color": "#E74C3C", "width": 3, "type": "صراع_مع_البطل"}
     if (s, t) in loop_edges:
         return {"color": "#9B59B6", "width": 3, "type": "حلقة"}
     if (s, t) in entry_edges:
         return {"color": "#3498DB", "width": 3, "type": "دخول"}
     if (s, t) in extension_edges:
-        return {"color": "#1ABC9C", "width": 3, "type": "امتداد"}
+        return {"color": "#1ABC9C", "width": 3, "type": "خروج"}
+    if (s, t) in action_edges:
+        return {"color": "#E67E22", "width": 2, "type": "فعل"}
     return {"color": "#AAAAAA", "width": 1, "type": None}
 
 
@@ -111,21 +66,6 @@ for src, tgt, data in G.edges(data=True):
     st = edge_style(s, t)
     P.add_edge(s, t, relation=data.get("label", ""), **st)
 
-
-# print("=== أدوار العقد ===")
-# for label, role in sorted(roles.items(),
-#                           key=lambda x: ["البطل", "المحور", "رئيسية", "فرعية"].index(x[1])):
-#     print(f"  [{role}] {label}")
-
-# print(f"\n=== الصراعات ({len(conflicts)}) ===")
-# for c in conflicts:
-#     print(f"\n  [{c['narrative_type']}] actor: {c['actor']}")
-#     e = c["action_edge"]
-#     print(f"    فعل:    {e['source']} → {e['target']}  ({e['relation']})")
-#     for r in c["reaction_edges"]:
-#         print(f"    رد فعل: {r['source']} → {r['target']}  ({r['relation']})")
-#     if not c["reaction_edges"]:
-#         print(f"    (لا يوجد رد فعل مباشر — تنافس على المحور)")
 
 # save  json
 all_conflict_edges = [

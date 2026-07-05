@@ -12,92 +12,44 @@ with open("./results/criticality_scores.json", "r", encoding="utf-8") as f:
 roles = crit["roles"]
 hero = crit["hero"]
 pivot = crit["pivot"]
-important = set(crit["important_nodes"])
-
-hero_id = label_to_id[hero]
-pivot_id = label_to_id[pivot]
-
-# old inline conflict detection — duplicated the same logic sna_edge_impact2.py
-# already computes. Read its output instead so all three plot/impact scripts
-# agree on one set of conflict edges (hub-based + cycle/entry/exit-based).
-# important_roles = {"البطل", "المحور", "رئيسية"}
-# visible_nodes = {label for label,
-#                  role in roles.items() if role in important_roles}
-#
-# conflict_actors = [
-#     X for X in (important - {hero, pivot})
-#     if G.has_edge(label_to_id[X], pivot_id)
-# ]
-#
-# conflicts = []
-# for X in conflict_actors:
-#     X_id = label_to_id[X]
-#     reactors = [Y for Y in important if Y !=
-#                 X and G.has_edge(label_to_id[Y], X_id)]
-#
-#     if hero in reactors:
-#         narrative = "فعل_ورد_فعل"
-#     elif reactors:
-#         narrative = "فعل_ورد_فعل_غير_مباشر"
-#     else:
-#         narrative = "تنافس"
-#
-#     conflicts.append({
-#         "actor":          X,
-#         "reactors":       reactors,
-#         "narrative_type": narrative,
-#         "action_edge":    {
-#             "source": X, "target": pivot,
-#             "relation": G.edges[X_id, pivot_id].get("label", ""),
-#         },
-#         "reaction_edges": [
-#             {"source": Y, "target": X,
-#              "relation": G.edges[label_to_id[Y], X_id].get("label", "")}
-#             for Y in reactors
-#         ],
-#     })
-#
-# action_edges = {(c["actor"], pivot) for c in conflicts}
-# reaction_edges = {(Y, c["actor"]) for c in conflicts for Y in c["reactors"]}
 
 with open("./results/edge_impact_summary.json", "r", encoding="utf-8") as f:
     edge_impact = json.load(f)
 
 edges_by_type = {}
 for e in edge_impact["edges_by_disruption"]:
-    edges_by_type.setdefault(e["conflict_type"], set()).add(
-        (e["source"], e["target"]))
+    edges_by_type.setdefault(e["conflict_type"], set()).add((e["source"], e["target"]))
 
-action_edges = edges_by_type.get("فعل", set())
-reaction_edges = edges_by_type.get("رد فعل", set())
 loop_edges = edges_by_type.get("حلقة", set())
 entry_edges = edges_by_type.get("دخول", set())
 extension_edges = edges_by_type.get("امتداد", set())
-all_conflict_edge_pairs = action_edges | reaction_edges | loop_edges | entry_edges | extension_edges
+hero_conflict_edges = edges_by_type.get("صراع_مع_البطل", set())
+action_edges = edges_by_type.get("فعل", set())
+all_conflict_edge_pairs = (loop_edges | entry_edges | extension_edges
+                           | hero_conflict_edges | action_edges)
 
 # only البطل، المحور، رئيسية are visible by role — plus any node that's an
 # endpoint of a conflict/loop/entry/exit edge, even if its own role is فرعية
 # (e.g. الاعصاب, reached by the loop's امتداد edge but not itself important
 # by degree/betweenness)
 important_roles = {"البطل", "المحور", "رئيسية"}
-visible_nodes = {label for label,
-                 role in roles.items() if role in important_roles}
+visible_nodes = {label for label, role in roles.items() if role in important_roles}
 for s, t in all_conflict_edge_pairs:
     visible_nodes.add(s)
     visible_nodes.add(t)
 
 
 def edge_style(s, t):
-    if (s, t) in action_edges:
-        return {"color": "#E67E22", "width": 3, "type": "فعل"}
-    if (s, t) in reaction_edges:
-        return {"color": "#E74C3C", "width": 3, "type": "رد فعل"}
+    if (s, t) in hero_conflict_edges:
+        return {"color": "#E74C3C", "width": 3, "type": "صراع_مع_البطل"}
     if (s, t) in loop_edges:
         return {"color": "#9B59B6", "width": 3, "type": "حلقة"}
     if (s, t) in entry_edges:
         return {"color": "#3498DB", "width": 3, "type": "دخول"}
     if (s, t) in extension_edges:
         return {"color": "#1ABC9C", "width": 3, "type": "امتداد"}
+    if (s, t) in action_edges:
+        return {"color": "#E67E22", "width": 2, "type": "فعل"}
     return {"color": "#AAAAAA", "width": 1, "type": None}
 
 
@@ -140,7 +92,6 @@ plot_data = {
 with open("./results/sna_plot_graph_filtered.json", "w", encoding="utf-8") as f:
     json.dump(plot_data, f, ensure_ascii=False, indent=4)
 
-
 # visualize
 net = Network(notebook=False, directed=True, height="750px", width="100%",
               cdn_resources="in_line")
@@ -159,4 +110,4 @@ with open("./results/sna_plot_graph_filtered.html", "w", encoding="utf-8") as f:
     f.write(net.generate_html())
 
 print(f"visible nodes: {len(P.nodes())}  edges: {len(P.edges())}")
-print("saved to results/sna_plot_graph_filtered.html")
+print("saved to results/sna_plot_graph_filtered.html && results/sna_plot_graph_filtered.json")
