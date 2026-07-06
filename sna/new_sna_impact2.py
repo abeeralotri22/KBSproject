@@ -38,11 +38,10 @@ important = {
         or betweenness.get(label, 0) > avg_bet)
 }
 
-# feedback loops (cycles) are structurally important regardless of degree/betweenness,
-# since a loop back to an earlier node is a core mechanism, not a side detail —
-# and so is whatever meaningfully triggers it (entry) or continues from it (exit)
+
 cycles = find_cycles(G, id_to_label)
-cycle_edge_set, entry_edge_set, exit_edge_set = cycle_edges_entries_exits(G, id_to_label, cycles)
+cycle_edge_set, entry_edge_set, exit_edge_set = cycle_edges_entries_exits(
+    G, id_to_label, cycles)
 core_node_set = structural_core_nodes(cycles, entry_edge_set, exit_edge_set)
 important |= core_node_set
 
@@ -114,11 +113,9 @@ for node_id in G.nodes():
             "reachability_loss":   baseline_reach - reach_after,
         }, f, ensure_ascii=False, indent=4)
 
-#  assign roles (NEW RULES)
 
-# البطل: prioritize source nodes (in_degree=0) in the important set.
-# A source node has no incoming edges — it initiates the action, nothing acts on it first.
-# If no source node is important, fall back to highest agency (original rule).
+# البطل: in_degree=0
+# If no in_degree=0 node is important, take highest agency
 place_set = set(makan_nodes)
 source_important = {l for l in important if in_degree.get(l, 0) == 0}
 if source_important:
@@ -128,14 +125,8 @@ else:
     hero = max(important,
                key=lambda l: (agency[l], out_degree.get(l, 0), disruption_scores.get(l, 0)))
 
-# المحور: highest disruption among remaining important nodes, excluding مكان nodes —
-# but only if it's a genuine convergence point. A single-hero radial graph (several
-# independent branches fanning out from one source, e.g. digestion, blood circulation)
-# has no real "world everything happens around" — forcing a pivot onto whichever branch
-# node scores highest disruption fabricates a role the graph doesn't structurally have.
-# convergence_score (edges arriving from ≥2 *different* clusters, not just the hero's own
-# branch) is what distinguishes a real hub (e.g. الخلية, fed by 3 independent clusters)
-# from a mid-branch step that merely happens to fan back out to several children.
+# المحور: highest disruption among remaining important nodes, excluding مكان
+# convergence_score (edges arriving from ≥2 unique clusters, not just the hero's own branch
 remaining = important - {hero}
 remaining_non_place = remaining - \
     place_set if (remaining - place_set) else remaining
@@ -144,9 +135,8 @@ pivot_candidate = max(remaining_non_place,
 pivot = pivot_candidate if convergence_score(
     G, id_to_label, label_to_cluster, label_to_id, pivot_candidate) >= 2 else None
 
-# رئيسية: remaining important nodes with above-average agency among themselves.
-# The threshold is relative to the candidate pool, with a floor of 1 (must reach at
-# least one other cluster).
+# رئيسية: remaining important nodes with above-average agency among themselves
+#  with a floor of 1 cluster reach
 after_hero_pivot = remaining - ({pivot} if pivot else set())
 remaining_agencies = [agency[l] for l in after_hero_pivot]
 avg_remaining_agency = (sum(remaining_agencies) /
@@ -164,15 +154,12 @@ non_important = [id_to_label[n]
                  for n in G.nodes() if id_to_label[n] not in important]
 secondary = demoted + non_important
 
-# a node that's part of a feedback loop — or meaningfully triggers/continues one —
-# is structurally core to the mechanism: never leave it in فرعية, even if its agency
-# fell under the main-character threshold (hero/pivot are untouched: they already
-# outrank رئيسية)
+# a node that's part of a cycle,  or meaningfully triggers/continues one
 promoted = [l for l in secondary if l in core_node_set]
 if promoted:
     secondary = [l for l in secondary if l not in core_node_set]
     main_chars = sorted(main_chars + promoted,
-                         key=lambda l: disruption_scores.get(l, 0), reverse=True)
+                        key=lambda l: disruption_scores.get(l, 0), reverse=True)
 
 roles = {}
 roles[hero] = "البطل"

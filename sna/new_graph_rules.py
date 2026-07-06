@@ -6,26 +6,9 @@ def find_cycles(G, id_to_label):
 
 
 def cycle_edges_entries_exits(G, id_to_label, cycles):
-    """
-    cycles: list of label cycles, as returned by find_cycles().
-    Returns (cycle_edge_set, entry_edge_set, exit_edge_set), all sets of
-    (source_label, target_label).
-
-    - cycle_edge_set: consecutive edges within any cycle — always kept, they
-      constitute the loop itself.
-    - entry_edge_set: edges from outside a cycle into one of its nodes — what
-      triggers the mechanism. Kept only when the source itself has more than
-      one connection in the graph (total degree > 1) — i.e. it's a node with
-      its own relationships, not a bare single-fact label that exists only to
-      feed the loop. Mirrors the exit-edge filter below: a node that connects
-      to only this one edge is structurally trivial, regardless of direction.
-    - exit_edge_set: edges leaving a cycle's node set toward a node outside
-      that same cycle, kept only when the target itself has further outgoing
-      edges (out-degree > 0) — i.e. the path actually continues onward.
-      Without this filter, exit_edge_set drowns in one-hop "is-a" leaves (a
-      cycle node classified into several subtypes that go nowhere), which are
-      taxonomic decoration, not a narrative continuation.
-    """
+    # وصلات الحلقة نفسها تُقبل دايمًا
+    # وصلة الدخول تُقبل بس اذا مصدرها الو درجة كلية اكبر من 1 (مو عقدة معزولة)
+    # وصلة الخروج تُقبل بس اذا هدفها بيكمل بوصلات خارجة تانية (مو ورقة تصنيف)
     label_to_id = {v: k for k, v in id_to_label.items()}
 
     cycle_edge_set = set()
@@ -55,12 +38,7 @@ def cycle_edges_entries_exits(G, id_to_label, cycles):
 
 
 def structural_core_nodes(cycles, entry_edge_set, exit_edge_set):
-    """
-    Nodes that are structurally part of a feedback mechanism even though
-    they aren't necessarily flagged important by degree/betweenness alone:
-    the cycle's own members, whatever triggers it (entry sources), and
-    whatever it leads into (exit targets).
-    """
+    # عقد الحلقة نفسها + مين بيشغّلها (دخول) + مين بتكمل عليه (خروج)
     cycle_node_set = {label for cycle in cycles for label in cycle}
     entry_sources = {s for s, _ in entry_edge_set}
     exit_targets = {t for _, t in exit_edge_set}
@@ -68,8 +46,7 @@ def structural_core_nodes(cycles, entry_edge_set, exit_edge_set):
 
 
 def agency_score(G, id_to_label, label_to_cluster, label_to_id, label):
-    """How many distinct clusters a node's outgoing edges reach (unchanged from the
-    original definition — does not exclude the node's own cluster)."""
+    # كم كلستر مختلف بتوصلهن وصلات العقدة الخارجة
     node_id = label_to_id[label]
     reached = {label_to_cluster[id_to_label[v]]
                for _, v in G.out_edges(node_id)
@@ -78,15 +55,7 @@ def agency_score(G, id_to_label, label_to_cluster, label_to_id, label):
 
 
 def convergence_score(G, id_to_label, label_to_cluster, label_to_id, label):
-    """
-    How many distinct clusters *other than its own* a node's incoming edges
-    originate from — the mirror of agency_score, but deliberately excluding the
-    node's own cluster. A real convergence hub (a genuine "pivot") is reached by
-    independent parts of the story, not just by the hero directly or by a single
-    upstream branch; excluding same-cluster predecessors is what distinguishes it
-    from a node that merely sits mid-chain in one branch and happens to have a
-    predecessor or two nearby.
-    """
+    # كم كلستر مختلف عن كلستر العقدة نفسها بتوصل منّو وصلات داخلة اليها
     node_id = label_to_id[label]
     own_cluster = label_to_cluster.get(label)
     reached = {label_to_cluster[id_to_label[u]]
@@ -194,16 +163,8 @@ TAXONOMY_RELATIONS = {"نوع", "نوعه", "نوعها"}
 
 
 def classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot):
-    """
-    The hero doesn't fight the pivot — the hero protects/maintains it, so a direct
-    hero<->pivot edge is never classified. Any other direct edge between the hero
-    and a main character is always a real conflict ("صراع_مع_البطل") — the hero's
-    own stated actions/relationships are inherently significant regardless of what
-    that character does downstream. Edges between two non-hero main/pivot nodes are
-    kept as context ("فعل"), showing how the plot continues past the hero. Taxonomy
-    ("is-a subtype") edges are excluded from both — they're classification, not
-    narrative action.
-    """
+    # البطل ما بيتصارع مع المحور، أي وصلة تانية بينو وبين شخصية رئيسية هي صراع
+    # والوصلات بين باقي الشخصيات الرئيسية/المحور هي سياق (فعل)
     significant_roles = {"البطل", "المحور", "رئيسية"}
 
     action_edges = []

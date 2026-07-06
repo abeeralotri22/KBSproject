@@ -19,13 +19,12 @@ roles = crit["roles"]
 conflict_edges = []
 seen_edges = set()
 
-# feedback-loop edges are a more specific structural signal than a role pairing —
-# compute them first so a cycle edge that also happens to connect two important
-# roles keeps its حلقة/دخول/امتداد tag instead of being reclassified below
+# نحسب وصلات الحلقة اولا ان وجدت
 cycles = find_cycles(G, id_to_label)
 cycle_edge_set, entry_edge_set, exit_edge_set = cycle_edges_entries_exits(
     G, id_to_label, cycles)
 
+# تصنيف كل وصلة حلقة/دخول/خروج حسب نوعها
 for source, target in sorted(cycle_edge_set | entry_edge_set | exit_edge_set):
     key = (source, target)
     seen_edges.add(key)
@@ -42,9 +41,7 @@ for source, target in sorted(cycle_edge_set | entry_edge_set | exit_edge_set):
         "type": edge_type,
     })
 
-# the hero doesn't fight the pivot — a main character that acts on the pivot or on another
-# main character ("فعل") is the one raising a conflict, and it's only a real conflict
-# ("صراع_مع_البطل") if the hero itself has a direct edge to that actor
+# البطل ما بيتصارع مع المحور، والصراع الحقيقي بس مع اللي عندو وصلة مباشرة مع البطل
 for edge in classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot):
     key = (edge["source"], edge["target"])
     if key in seen_edges:
@@ -52,6 +49,7 @@ for edge in classify_narrative_conflicts(G, id_to_label, label_to_id, roles, her
     seen_edges.add(key)
     conflict_edges.append(edge)
 
+# تجميع الوصلات حسب نوعها لعرضها بشكل ملخّص
 conflicts_by_type = {}
 for edge in conflict_edges:
     conflicts_by_type.setdefault(edge["type"], []).append(
@@ -59,6 +57,7 @@ for edge in conflict_edges:
 
 conflicts = [{"type": t, "edges": edges}
              for t, edges in conflicts_by_type.items()]
+# إضافة الحلقة نفسها كعنصر مستقل بالملخّص إن وُجدت
 if cycles:
     conflicts.append({
         "cycles":         cycles,

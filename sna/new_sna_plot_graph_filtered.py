@@ -18,7 +18,8 @@ with open("./results/edge_impact_summary.json", "r", encoding="utf-8") as f:
 
 edges_by_type = {}
 for e in edge_impact["edges_by_disruption"]:
-    edges_by_type.setdefault(e["conflict_type"], set()).add((e["source"], e["target"]))
+    edges_by_type.setdefault(e["conflict_type"], set()).add(
+        (e["source"], e["target"]))
 
 loop_edges = edges_by_type.get("حلقة", set())
 entry_edges = edges_by_type.get("دخول", set())
@@ -30,10 +31,9 @@ all_conflict_edge_pairs = (loop_edges | entry_edges | extension_edges
 
 # only البطل، المحور، رئيسية are visible by role — plus any node that's an
 # endpoint of a conflict/loop/entry/exit edge, even if its own role is فرعية
-# (e.g. الاعصاب, reached by the loop's امتداد edge but not itself important
-# by degree/betweenness)
 important_roles = {"البطل", "المحور", "رئيسية"}
-visible_nodes = {label for label, role in roles.items() if role in important_roles}
+visible_nodes = {label for label,
+                 role in roles.items() if role in important_roles}
 for s, t in all_conflict_edge_pairs:
     visible_nodes.add(s)
     visible_nodes.add(t)
