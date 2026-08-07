@@ -20,6 +20,7 @@ steps = [
     (SNA,  "new_sna_plot_graph.py"),
     # (SNA,  "sna_plot_graph_filtered.py"),
     (SNA,  "new_sna_plot_graph_filtered.py"),
+    (SNA,  "antonym.py"),
 ]
 
 for cwd, script in steps:

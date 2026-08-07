@@ -30,12 +30,25 @@ entry_edges = edges_by_type.get("دخول", set())
 extension_edges = edges_by_type.get("امتداد", set())
 hero_conflict_edges = edges_by_type.get("صراع_مع_البطل", set())
 action_edges = edges_by_type.get("فعل", set())
+causal_edges = edges_by_type.get("مسار_سببي", set())
+sequence_edges = edges_by_type.get("تسلسل", set())
+resolution_edges = edges_by_type.get("حل", set())
+addition_edges = edges_by_type.get("إضافة", set())
 
 
-node_color = {"البطل": "#FF4500", "المحور": "#90D5FF",
-              "رئيسية": "#FFA500", "فرعية": "#D3D3D3"}
-node_size = {"البطل": 40,        "المحور": 35,
-             "رئيسية": 25,         "فرعية": 15}
+# three distinct palettes  hub/causal-chain/sequence-chain
+node_color = {
+    "البطل": "#FF4500", "المحور": "#90D5FF", "رئيسية": "#FFA500", "فرعية": "#D3D3D3",
+    "المحفز": "#FF8000", "النتيجة": "#4DB3F3", "مرحلة": "#FEBC66",
+    "حل": "#2ECC71", "أثر_جانبي": "#D3D3D3",
+    "البداية": "#B9FE88", "الخاتمة": "#4DB3F3", "خطوة": "#FFFD93", "فرعي": "#D3D3D3",
+}
+node_size = {
+    "البطل": 40, "المحور": 35, "رئيسية": 25, "فرعية": 15,
+    "المحفز": 35, "النتيجة": 30, "مرحلة": 20,
+    "حل": 20, "أثر_جانبي": 12,
+    "البداية": 35, "الخاتمة": 30, "خطوة": 20, "فرعي": 12,
+}
 
 
 def edge_style(s, t):
@@ -49,6 +62,14 @@ def edge_style(s, t):
         return {"color": "#1ABC9C", "width": 3, "type": "خروج"}
     if (s, t) in action_edges:
         return {"color": "#E67E22", "width": 2, "type": "فعل"}
+    if (s, t) in causal_edges:
+        return {"color": "#E67E22", "width": 3, "type": "مسار_سببي"}
+    if (s, t) in sequence_edges:
+        return {"color": "#3498DB", "width": 2, "type": "تسلسل"}
+    if (s, t) in resolution_edges:
+        return {"color": "#2ECC71", "width": 3, "type": "حل"}
+    if (s, t) in addition_edges:
+        return {"color": "#1ABC9C", "width": 2, "type": "إضافة"}
     return {"color": "#AAAAAA", "width": 1, "type": None}
 
 
@@ -99,7 +120,7 @@ for node, attrs in P.nodes(data=True):
 
 for s, t, attrs in P.edges(data=True):
     net.add_edge(s, t, label=attrs["relation"], color=attrs["color"],
-                 width=attrs["width"], font={"size": 10, "align": "middle"})
+                 width=attrs["width"], font={"size": 10, "align": "horizontal"})
 
 net.toggle_physics(True)
 

@@ -167,6 +167,15 @@ def classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot
     # والوصلات بين باقي الشخصيات الرئيسية/المحور هي سياق (فعل)
     significant_roles = {"البطل", "المحور", "رئيسية"}
 
+    # hero<->pivot being automatically "protection, not conflict" was tuned on
+    # science lessons . For history/geography
+    # lessons the hero<->pivot relationship is often the actual conflict
+    # (Britain and France racing for control of Egypt) and forcing it to
+    # "protection" there hid the central conflict and left it unnegatable.
+    # Gated on the same domain tag place_set uses, so science stays exactly
+    # as validated and only history/geography drop the assumption.
+    hero_pivot_is_protection = G.graph.get("subject", "علوم") == "علوم"
+
     action_edges = []
     conflict_edges = []
     for u, v, data in G.edges(data=True):
@@ -178,7 +187,7 @@ def classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot
             continue
 
         if hero in (u_label, v_label):
-            if {u_role, v_role} == {"البطل", "المحور"}:
+            if hero_pivot_is_protection and {u_role, v_role} == {"البطل", "المحور"}:
                 continue  # hero<->pivot: protection, not conflict
             conflict_edges.append({
                 "source": u_label, "target": v_label,

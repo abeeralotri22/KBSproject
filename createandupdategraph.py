@@ -5,15 +5,49 @@ import requests
 # import time
 
 
-# with open('nlp/nlp_output.json', 'r', encoding='utf-8') as f:  # علوم1
+# with open('nlp/nlp_output.json', 'r', encoding='utf-8') as f:  # علوم1 ✅
 # with open('nlp/nlp2_output.json', 'r', encoding='utf-8') as f: # تنوع بيئي
-# with open('nlp/nlp3_output.json', 'r', encoding='utf-8') as f: # التاريخ
-# with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2
-with open('nlp/nlp5_output.json', 'r', encoding='utf-8') as f:  # علوم3
-    # with open('nlp/nlp6_output.json', 'r', encoding='utf-8') as f:  # علوم4
+with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2 ✅
+# with open('nlp/nlp5_output.json', 'r', encoding='utf-8') as f:  # علوم3 ✅
+# with open('nlp/nlp6_output.json', 'r', encoding='utf-8') as f:  # علوم4 ✅ تسلسل
+# with open('nlp/nlp_text1.json', 'r', encoding='utf-8') as f:  # test: الليف العضلي المخطط (descriptive) النص ركيك
+# with open('nlp/nlp_text2.json', 'r', encoding='utf-8') as f:  # test: المشيمية (descriptive) قصير
+# with open('nlp/nlp_text3.json', 'r', encoding='utf-8') as f:  # test: الشبكية (descriptive) تحوي
+# with open('nlp/nlp_text4.json', 'r', encoding='utf-8') as f:  # test: دور الشبكية (descriptive) تحوي
+# with open('nlp/nlp_text5.json', 'r', encoding='utf-8') as f:  # test: الإنارة (causal) ✅
+# with open('nlp/nlp_text6.json', 'r', encoding='utf-8') as f:  # test: المريء (descriptive) النص ركيك
+# with open('nlp/nlp_text7.json', 'r', encoding='utf-8') as f:  # test: تسوس الأسنان (causal ) ✅
+# with open('nlp/nlp_text8.json', 'r', encoding='utf-8') as f:  # test: المعدة (descriptive) ✅ تسلسل
+# with open('nlp/nlp_text9.json', 'r', encoding='utf-8') as f:  # test: التعب العضلي (causal ) ✅
+# with open('nlp/nlp_text_eye_combined.json', 'r', encoding='utf-8') as f:  # test: العين مجمّعة (نصوص 2+3+4، descriptive)
+# with open('nlp/nlp_text10.json', 'r', encoding='utf-8') as f:  # test: مسار السمع /  تسلسل ✅
+
+# with open('nlp/new_nlp_text1.json', 'r', encoding='utf-8') as f:  # test: الحمل والولادة hub
+# with open('nlp/new_nlp_text2.json', 'r', encoding='utf-8') as f:  # test: تجدد البشرة (causal )✅
+# with open('nlp/new_nlp_text4.json', 'r', encoding='utf-8') as f:  # test: كمون العمل (causal )✅
+# with open('nlp/new_nlp_text5.json', 'r', encoding='utf-8') as f:  # test: باحة فيرنكه (تسلسل) ✅
+# with open('nlp/new_nlp_text6.json', 'r', encoding='utf-8') as f:  # test: المرونة العصبية والذاكرة (mixed) ✅ (sus)
+# with open('nlp/new_nlp_text7.json', 'r', encoding='utf-8') as f:  # test: عضلات الأذن الوسطى (causal, dual branch) ✅
+# with open('nlp/new_nlp_text8.json', 'r', encoding='utf-8') as f:  # test: كمون المستقبل السمعي (causal ) ✅
+# with open('nlp/new_nlp_text9.json', 'r', encoding='utf-8') as f:  # test: إنتاش حبة الطلع (descريptive/process) (sus) ✅
+
+# with open('nlp/geo_text1.json', 'r', encoding='utf-8') as f:  # test: انتاج حيواني (hub) ✅ sus
+# with open('nlp/geo_text2.json', 'r', encoding='utf-8') as f:  # test: تملح التربة (hub) ✅
+# with open('nlp/geo_text3.json', 'r', encoding='utf-8') as f:  # test: التربة الصحراوية والبادية السورية (hub)  ✅
+# with open('nlp/geo_text4.json', 'r', encoding='utf-8') as f:  # test: مناخ الوطن العربي وعوامله (hub) ✅
+# with open('nlp/geo_text5.json', 'r', encoding='utf-8') as f:  # test: مقومات السياحة في الوطن العربي (hub) ✅
+# with open('nlp/geo_text6.json', 'r', encoding='utf-8') as f:  # test: مناخ سورية وفصوله ورياحه (hub) ✅
+# with open('nlp/geo_text7.json', 'r', encoding='utf-8') as f:  # test: البادية السورية /  تسلسل ✅
+
+# with open('nlp/hist_text1.json', 'r', encoding='utf-8') as f: # التاريخ sus
+# with open('nlp/hist_text2.json', 'r', encoding='utf-8') as f:  # test: ثورة 1919 المصرية (hub) ✅
+    # with open('nlp/hist_text3.json', 'r', encoding='utf-8') as f:  # test: التنافس البريطاني الفرنسي على مصر (hub) ✅
+
     data = json.load(f)
 
 G = nx.DiGraph()
+if "subject" in data:
+    G.graph["subject"] = data["subject"]
 
 for node in data["nodes"]:
     G.add_node(node["id"], label=node["label"],

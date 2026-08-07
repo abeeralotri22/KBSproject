@@ -15,6 +15,11 @@ with open("./results/criticality_scores.json", "r", encoding="utf-8") as f:
 hero = crit["hero"]
 pivot = crit["pivot"]
 roles = crit["roles"]
+archetype = crit.get("archetype", "hub")
+chain_info = crit.get("chain_details")
+chain_subtype = crit.get("chain_subtype")
+spine_edge_type = "مسار_سببي" if chain_subtype == "causal" else "تسلسل"
+resolution_edge_type = "حل" if chain_subtype == "causal" else "إضافة"
 
 conflict_edges = []
 seen_edges = set()
@@ -41,13 +46,73 @@ for source, target in sorted(cycle_edge_set | entry_edge_set | exit_edge_set):
         "type": edge_type,
     })
 
-# البطل ما بيتصارع مع المحور، والصراع الحقيقي بس مع اللي عندو وصلة مباشرة مع البطل
-for edge in classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot):
-    key = (edge["source"], edge["target"])
-    if key in seen_edges:
-        continue
-    seen_edges.add(key)
-    conflict_edges.append(edge)
+if archetype == "chain":
+    # no adversary here — the "action" is the causal spine itself, and
+    # any resolution edge ( rest -> fatigue) is a mitigation, not a fight.
+    for source, target in chain_info["spine_edges"]:
+        key = (source, target)
+        if key in seen_edges:
+            continue
+        seen_edges.add(key)
+        conflict_edges.append({
+            "source": source, "target": target,
+            "src_id": label_to_id[source], "tgt_id": label_to_id[target],
+            "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
+            "type": spine_edge_type,
+        })
+    for source, target in chain_info["resolution_edges"]:
+        key = (source, target)
+        if key in seen_edges:
+            continue
+        seen_edges.add(key)
+        conflict_edges.append({
+            "source": source, "target": target,
+            "src_id": label_to_id[source], "tgt_id": label_to_id[target],
+            "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
+            "type": resolution_edge_type,
+        })
+    for branch in chain_info["branches"]:
+        for source, target in branch["edges"]:
+            key = (source, target)
+            if key in seen_edges:
+                continue
+            seen_edges.add(key)
+            conflict_edges.append({
+                "source": source, "target": target,
+                "src_id": label_to_id[source], "tgt_id": label_to_id[target],
+                "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
+                "type": spine_edge_type,
+            })
+    for source, target in chain_info["extra_trigger_edges"]:
+        key = (source, target)
+        if key in seen_edges:
+            continue
+        seen_edges.add(key)
+        conflict_edges.append({
+            "source": source, "target": target,
+            "src_id": label_to_id[source], "tgt_id": label_to_id[target],
+            "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
+            "type": spine_edge_type,
+        })
+    for source, target in chain_info["fork_entry_edges"]:
+        key = (source, target)
+        if key in seen_edges:
+            continue
+        seen_edges.add(key)
+        conflict_edges.append({
+            "source": source, "target": target,
+            "src_id": label_to_id[source], "tgt_id": label_to_id[target],
+            "relation": G.edges[label_to_id[source], label_to_id[target]].get("label", ""),
+            "type": spine_edge_type,
+        })
+else:
+    # البطل ما بيتصارع مع المحور، والصراع الحقيقي بس مع اللي عندو وصلة مباشرة مع البطل
+    for edge in classify_narrative_conflicts(G, id_to_label, label_to_id, roles, hero, pivot):
+        key = (edge["source"], edge["target"])
+        if key in seen_edges:
+            continue
+        seen_edges.add(key)
+        conflict_edges.append(edge)
 
 # تجميع الوصلات حسب نوعها لعرضها بشكل ملخّص
 conflicts_by_type = {}
@@ -73,6 +138,12 @@ def reachable_pairs(graph):
 
 
 baseline_reach = reachable_pairs(G)
+# nodes already disconnected before any edge is touched ( a node whose
+# only connection was a "مثل" ) must be
+# excluded below — otherwise they show up as "isolated" after removing
+# every single edge in the graph, which isn't a consequence of that edge at
+# all, just pre-existing noise.
+baseline_isolated = {n for n in G.nodes() if G.degree(n) == 0}
 
 # removing each conflict edge
 os.makedirs("./results/edge_impact", exist_ok=True)
@@ -89,7 +160,8 @@ for edge in conflict_edges:
     comp_after = nx.number_weakly_connected_components(G_temp)
     reach_after = reachable_pairs(G_temp)
     isolated = [id_to_label[n]
-                for n in G_temp.nodes() if G_temp.degree(n) == 0]
+                for n in G_temp.nodes()
+                if G_temp.degree(n) == 0 and n not in baseline_isolated]
     reach_loss = baseline_reach - reach_after
 
     try:
