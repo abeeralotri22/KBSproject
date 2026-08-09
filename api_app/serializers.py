@@ -24,3 +24,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=password
         )
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'profile_image']
