@@ -6,14 +6,15 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    #register & login
+    # register & login
     path('register/', views.register, name='register'),
-    path('login/', views.login, name = 'login'),
-    #built-in
+    path('login/', views.login, name='login'),
+    # built-in
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    #Profile
-    path('profile/', views.profile, name = 'profile')
+    # Profile
+    path('profile/', views.update_profile, name='update profile'),
+    path('get_profile/', views.get_profile, name='get profile')
 
 ]

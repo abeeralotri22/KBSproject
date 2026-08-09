@@ -25,7 +25,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-class ProfileSerializer(serializers.ModelSerializer):
+class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'profile_image']
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'profile_image',
+            # we can add any other fields you want to show here (like 'role', 'location', etc.)
+        ]

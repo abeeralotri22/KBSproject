@@ -4,10 +4,12 @@ from django.shortcuts import render
 import logging
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer
+
 
 # auth_logger = logging.getLogger('service.auth')
 
@@ -51,5 +53,35 @@ def login(request):
         }, status=status.HTTP_200_OK)
 
     return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def update_profile(request):
+    user = request.user
+    serializer = UpdateProfileSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Profile updated successfully",
+            "user": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile(request):
+    serializer = UserProfileSerializer(request.user)
+
+    return Response({
+        "message": "Profile fetched successfully",
+        "user": serializer.data
+    }, status=status.HTTP_200_OK)
+
 
 
