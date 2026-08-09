@@ -25,6 +25,7 @@ def register(request):
             "user": {
                 "id": user.id,
                 "email": user.email,
+                "role":user.role
             },
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
@@ -47,6 +48,7 @@ def login(request):
             "user": {
                 "id": user.id,
                 "email": user.email,
+                "role":user.role
             },
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
@@ -72,7 +74,6 @@ def update_profile(request):
 
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile(request):
@@ -82,7 +83,6 @@ def get_profile(request):
         "message": "Profile fetched successfully",
         "user": serializer.data
     }, status=status.HTTP_200_OK)
-
 
 
 

@@ -21,7 +21,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(
             username=email,
             email=email,
-            password=password
+            password=password,
+            role='customer'
+
         )
         return user
 
@@ -40,6 +42,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'profile_image',
+            'role'
+
             # we can add any other fields you want to show here (like 'role', 'location', etc.)
         ]
 
