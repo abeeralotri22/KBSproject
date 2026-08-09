@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer
+from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer,ChangePasswordSerializer
 
 
 # auth_logger = logging.getLogger('service.auth')
@@ -84,4 +84,18 @@ def get_profile(request):
     }, status=status.HTTP_200_OK)
 
 
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Password changed successfully."
+        }, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
