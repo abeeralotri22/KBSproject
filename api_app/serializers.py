@@ -5,6 +5,7 @@ from .models import CustomUser
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
+
     class Meta:
         model = CustomUser
         fields = ['first_name','last_name','email', 'password']
@@ -47,8 +48,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_image',
             'role'
-
-            # we can add any other fields you want to show here (like 'role', 'location', etc.)
         ]
 
 
