@@ -47,7 +47,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'profile_image',
-            'role'
+            'role',
+            'is_active'
         ]
 
 

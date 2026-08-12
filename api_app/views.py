@@ -1,8 +1,4 @@
 from django.contrib.auth import authenticate
-from django.shortcuts import render
-
-import logging
-
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -17,7 +13,6 @@ from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfil
 
 
 class IsAdminUserRole(permissions.BasePermission):
-    """صلاحية تسمح فقط للمستخدمين الذين يحملون دور admin بالوصول"""
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')
@@ -140,3 +135,31 @@ def get_all_users(request):
         "users": serializer.data
     })
 
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUserRole])
+def toggle_customer_status(request, user_id):
+    customer = CustomUser.objects.get(id=user_id, role='customer')
+    is_active = request.data.get('is_active')
+    if is_active is None:
+        return Response({
+            "error": "Please provide 'is_active' field (true/false)"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if not isinstance(is_active, bool):
+        return Response({
+            "error": "'is_active' must be a boolean (true/false)"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    customer.is_active = is_active
+    customer.save()
+    status_message = "activated" if is_active else "deactivated"
+    return Response({
+        "message": f"Customer {status_message} successfully",
+        "user": {
+            "id": customer.id,
+            "email": customer.email,
+            "first_name": customer.first_name,
+            "last_name": customer.last_name,
+            "is_active": customer.is_active
+        }
+    }, status=status.HTTP_200_OK)

@@ -20,5 +20,6 @@ urlpatterns = [
     path('change_password/', views.change_password, name='change the password'),
 
     # admin
-    path('users/all/', views.get_all_users, name='get_all_users')
+    path('users/all/', views.get_all_users, name='get_all_users'),
+    path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
 ]
