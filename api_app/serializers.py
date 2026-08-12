@@ -7,7 +7,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'password']
+        fields = ['first_name','last_name','email', 'password']
 
     def validate_email(self, value):
         value = value.lower()
@@ -18,9 +18,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         email = validated_data['email']
         password = validated_data['password']
+        first_name = validated_data['first_name']
+        last_name = validated_data['last_name']
         user = CustomUser.objects.create_user(
             username=email,
             email=email,
+            first_name = first_name,
+            last_name = last_name,
             password=password,
             role='customer'
 
