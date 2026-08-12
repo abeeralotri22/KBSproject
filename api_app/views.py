@@ -2,16 +2,30 @@ from django.contrib.auth import authenticate
 from django.shortcuts import render
 
 import logging
+
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from . import models
+from .models import CustomUser
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer,ChangePasswordSerializer
 
 
-# auth_logger = logging.getLogger('service.auth')
+class IsAdminUserRole(permissions.BasePermission):
+    """صلاحية تسمح فقط للمستخدمين الذين يحملون دور admin بالوصول"""
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')
+
+class UserPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -100,4 +114,29 @@ def change_password(request):
         }, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+##############Admin statistics
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def get_all_users(request):
+    users = CustomUser.objects.filter(role = 'customer').order_by('-date_joined')
+    search = request.query_params.get('search')
+    if search:
+        users = users.filter(
+            models.Q(first_name__icontains=search) |
+            models.Q(last_name__icontains=search) |
+            models.Q(email__icontains=search)
+        )
+
+    paginator = UserPagination()
+    paginated_users = paginator.paginate_queryset(users, request)
+    serializer = UserProfileSerializer(paginated_users, many=True)
+
+    return paginator.get_paginated_response({
+        "message": "Users fetched successfully",
+        "total_users": users.count(),
+        "users": serializer.data
+    })
 
