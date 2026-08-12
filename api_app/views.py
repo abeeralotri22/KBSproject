@@ -10,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from . import models
 from .models import CustomUser, Subject
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
-    SubjectSerializer
+    SubjectSerializer,UserSubjectsSerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -128,6 +128,22 @@ def get_subjects(request):
     }, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def chosen_subjects(request):
+    user = request.user
+    serializer = UserSubjectsSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        subjects_data = SubjectSerializer(user.subjects, many=True).data
+        return Response({
+            "message": "Subjects selected successfully",
+            "selected_subjects": subjects_data
+        }, status=status.HTTP_200_OK)
+
+    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 
@@ -222,22 +238,3 @@ def admin_delete_subject(request, subject_id):
     }, status=status.HTTP_200_OK)
 
 
-@api_view(['PATCH'])
-@permission_classes([IsAdminUserRole])
-@parser_classes([MultiPartParser, FormParser]) # Required if updating the icon
-def admin_update_subject(request, subject_id):
-    subject = Subject.objects.get(id=subject_id)
-    if not subject:
-        return Response({
-            "error": "Subject not found"
-        }, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = SubjectSerializer(subject, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({
-            "message": "Subject updated successfully",
-            "subject": serializer.data
-        }, status=status.HTTP_200_OK)
-
-    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

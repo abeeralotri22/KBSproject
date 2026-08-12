@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
+from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 
 urlpatterns = [
     # register & login
@@ -16,15 +16,14 @@ urlpatterns = [
     path('get_profile/', views.get_profile, name='get profile'),
     path('change_password/', views.change_password, name='change the password'),
 
-    #Subjects For Customer
-    path('subjects/all/',views.get_subjects, name='get_all_subjects'),
+    # Subjects For Customer
+    path('subjects/all/', views.get_subjects, name='get_all_subjects'),
+    path('subjects/choose/', views.chosen_subjects, name='choose'),
 
     # admin
     path('users/all/', views.get_all_users, name='get_all_users'),
     path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
-    path('subjects/add/', views.admin_create_subject, name= 'admin_create_subject'),
+    path('subjects/add/', views.admin_create_subject, name='admin_create_subject'),
     path('subjects/<int:subject_id>/delete/', views.admin_delete_subject, name='admin_delete_subject'),
-    path('subjects/<int:subject_id>/update/', views.admin_update_subject, name='admin_update_subject')
-
 
 ]
