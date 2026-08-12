@@ -8,8 +8,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import models
-from .models import CustomUser
-from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer,ChangePasswordSerializer
+from .models import CustomUser, Subject
+from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
+    SubjectSerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -17,6 +18,9 @@ class IsAdminUserRole(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')
 
+
+
+######### Registration and Profile
 class UserPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
@@ -112,7 +116,23 @@ def change_password(request):
 
 
 
-##############Admin statistics
+##############Sujects, Lessons and Stories
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_subjects(request):
+    subjects = Subject.objects.all()
+    serializer = SubjectSerializer(subjects, many=True)
+    return Response({
+        "message": "Subjects fetched successfully",
+        "subjects": serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+
+
+
+
+##############Admin Section
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
 def get_all_users(request):
@@ -163,3 +183,61 @@ def toggle_customer_status(request, user_id):
             "is_active": customer.is_active
         }
     }, status=status.HTTP_200_OK)
+
+
+#Subjects
+@api_view(['POST'])
+@permission_classes([IsAdminUserRole])
+@parser_classes([MultiPartParser, FormParser]) # Required for image upload
+def admin_create_subject(request):
+    serializer = SubjectSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Subject created successfully",
+            "subject": serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUserRole])
+def admin_delete_subject(request, subject_id):
+    """
+    This will also delete all lessons associated with this subject.
+    """
+    subject = Subject.objects.get(id=subject_id)
+    if not subject:
+        return Response({
+            "error": "Subject not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+    lesson_count = subject.lessons.count()
+    subject.delete()
+    message = "Subject deleted successfully"
+    if lesson_count > 0:
+        message += f" (along with {lesson_count} associated lesson(s))"
+    return Response({
+        "message": message
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUserRole])
+@parser_classes([MultiPartParser, FormParser]) # Required if updating the icon
+def admin_update_subject(request, subject_id):
+    subject = Subject.objects.get(id=subject_id)
+    if not subject:
+        return Response({
+            "error": "Subject not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = SubjectSerializer(subject, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Subject updated successfully",
+            "subject": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
