@@ -159,7 +159,7 @@ def load_story_data(path="./results/story_graph_data.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-STORY_DATA = load_story_data(r"C:\Users\Lenovo\OneDrive\Desktop\desktop\KBSproject\sna\results\story_graph_data.json")
+STORY_DATA = load_story_data("../sna/results/story_graph_data.json")
 roles = STORY_DATA["roles"]
 graph_data = STORY_DATA["graph_data"]
 conflicts = STORY_DATA.get("conflicts", [])
