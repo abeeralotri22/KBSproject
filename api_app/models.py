@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -32,6 +33,7 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='lessons')
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='lessons')
 
 
@@ -39,4 +41,19 @@ class Lesson(models.Model):
         ordering = ['order', 'created_at']
 
     def __str__(self):
-        return f"{self.subject.name}"
+        return f"{self.subject.name} "
+
+
+class Story(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='stories')
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    initial_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    review_comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Story: {self.title} ({self.initial_rating}/5)"
