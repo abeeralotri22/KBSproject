@@ -20,10 +20,16 @@ urlpatterns = [
     path('subjects/all/', views.get_subjects, name='get_all_subjects'),
     path('subjects/choose/', views.chosen_subjects, name='choose'),
 
+    #Lesson
+    path('lesson/add/', views.add_lesson, name='adding_lesson'),
+
     # admin
     path('users/all/', views.get_all_users, name='get_all_users'),
     path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
     path('subjects/add/', views.admin_create_subject, name='admin_create_subject'),
     path('subjects/<int:subject_id>/delete/', views.admin_delete_subject, name='admin_delete_subject'),
+    path('stories/', views.admin_get_all_lessons, name='get_all_lessons_and_stories'),
+    path('stories/<int:lesson_id>/', views.admin_get_lesson_detail, name='get_lesson_details')
+
 
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Subject
+from .models import CustomUser, Subject, Lesson, Story
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -99,3 +99,129 @@ class UserSubjectsSerializer(serializers.ModelSerializer):
         if len(value) > 3:
             raise serializers.ValidationError("You cannot select more than 3 subjects.")
         return value
+
+
+#Lesson
+class LessonSerializer(serializers.ModelSerializer):
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+
+    class Meta:
+        model = Lesson
+        fields = ['id', 'subject', 'subject_name', 'content', 'order', 'created_at']
+
+
+class CreateLessonSerializer(serializers.ModelSerializer):
+    subject = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all())
+
+    class Meta:
+        model = Lesson
+        fields = ['subject', 'content', 'order']
+
+    def validate_subject(self, value):
+        user = self.context['request'].user
+        # to check if the chosen subject is in the user's enrolled subjects
+        if value not in user.subjects.all():
+            raise serializers.ValidationError(
+                "You cannot add a lesson to this subject. Please select it first."
+            )
+
+        return value
+
+
+
+#Story
+
+
+
+class StorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Story
+        fields = ['id', 'title', 'content', 'initial_rating', 'review_comment', 'created_at']
+
+
+
+
+
+class LessonWithStoriesSerializer(serializers.ModelSerializer):
+    """ lesson with its stories"""
+    stories = StorySerializer(many=True, read_only=True)
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+
+    class Meta:
+        model = Lesson
+        fields = ['id', 'subject', 'subject_name', 'content', 'order', 'created_at', 'stories']
+
+
+
+
+
+
+class AdminUserDetailSerializer(serializers.ModelSerializer):
+    """Serializer specifically for Admins to see User -> Lessons -> Stories"""
+    lessons = LessonWithStoriesSerializer(many=True, read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'profile_image',
+            'is_active',
+            'lessons' # to automatically nest all lessons and their stories
+        ]
+
+
+####
+
+class FirstStorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Story
+        fields = ['id', 'title', 'content', 'initial_rating']
+class AdminLessonListSerializer(serializers.ModelSerializer):
+    """list of all lessons with the first story of each lesson"""
+    first_story = serializers.SerializerMethodField()
+    total_stories = serializers.IntegerField(read_only=True)  # Comes from view annotation
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+
+    class Meta:
+        model = Lesson
+        fields = [
+            'id',
+            'subject_name',
+            'content',
+            'total_stories',
+            'first_story',
+            'created_at'
+        ]
+
+    def get_first_story(self, obj):
+        stories_cache = obj.stories.all()[:1]
+        if stories_cache:
+            return FirstStorySerializer(stories_cache[0]).data
+        return None
+
+
+class AdminLessonDetailSerializer(serializers.ModelSerializer):
+    """Serializer for when the admin clicks on a specific lesson"""
+    stories = StorySerializer(many=True, read_only=True)
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+    customer_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = [
+            'id',
+            'subject_name',
+            'content',
+            'customer_name',
+            'created_at',
+            'stories'
+        ]
+
+    def get_customer_name(self, obj):
+        first = obj.user.first_name or ""
+        last = obj.user.last_name or ""
+        full_name = f"{first} {last}".strip()
+        return full_name if full_name else obj.user.email
+

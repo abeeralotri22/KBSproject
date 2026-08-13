@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db.models import Count, Prefetch
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -8,9 +9,10 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import models
-from .models import CustomUser, Subject
+from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
-    SubjectSerializer,UserSubjectsSerializer
+    SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
+    LessonWithStoriesSerializer, AdminLessonDetailSerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -145,6 +147,25 @@ def chosen_subjects(request):
 
 
 
+#Lesson
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_lesson(request):
+    serializer = CreateLessonSerializer(data=request.data, context={'request': request})
+
+    if serializer.is_valid():
+        lesson = serializer.save(user=request.user)
+        response_serializer = LessonSerializer(lesson)
+
+        return Response({
+            "message": "Lesson added successfully",
+            "lesson": response_serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 
@@ -159,7 +180,14 @@ def get_all_users(request):
             models.Q(first_name__icontains=search) |
             models.Q(last_name__icontains=search) |
             models.Q(email__icontains=search)
+
         )
+    is_active_param = request.query_params.get('is_active')
+    if is_active_param is not None:
+        if is_active_param.lower() in ['true', '1', 'yes']:
+            users = users.filter(is_active=True)
+        elif is_active_param.lower() in ['false', '0', 'no']:
+            users = users.filter(is_active=False)
 
     paginator = UserPagination()
     paginated_users = paginator.paginate_queryset(users, request)
@@ -220,9 +248,7 @@ def admin_create_subject(request):
 @api_view(['DELETE'])
 @permission_classes([IsAdminUserRole])
 def admin_delete_subject(request, subject_id):
-    """
-    This will also delete all lessons associated with this subject.
-    """
+    """ delete all lessons associated with this subject"""
     subject = Subject.objects.get(id=subject_id)
     if not subject:
         return Response({
@@ -235,6 +261,41 @@ def admin_delete_subject(request, subject_id):
         message += f" (along with {lesson_count} associated lesson(s))"
     return Response({
         "message": message
+    }, status=status.HTTP_200_OK)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_get_all_lessons(request):
+    lessons = Lesson.objects.annotate(total_stories=Count('stories')).order_by('-created_at')
+    lessons = lessons.prefetch_related(
+        Prefetch('stories', queryset=Story.objects.order_by('-created_at')),
+        'user',
+        'subject'
+    )
+
+    paginator = UserPagination()
+    paginated_lessons = paginator.paginate_queryset(lessons, request)
+    serializer = AdminLessonListSerializer(paginated_lessons, many=True)
+    return paginator.get_paginated_response({
+        "message": "Lessons fetched successfully",
+        "lessons": serializer.data
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_get_lesson_detail(request, lesson_id):
+    try:
+        lesson = Lesson.objects.select_related('user', 'subject').prefetch_related('stories').get(id=lesson_id)
+    except Lesson.DoesNotExist:
+        return Response({"error": "Lesson not found"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = AdminLessonDetailSerializer(lesson)
+    return Response({
+        "message": "Lesson details fetched successfully",
+        "lesson": serializer.data
     }, status=status.HTTP_200_OK)
 
 
