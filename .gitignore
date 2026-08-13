@@ -4,6 +4,7 @@ results/
 *.html
 .vscode/
 .claude/
+.idea/
 graph_engine/sna/__pycache__/
 graph_engine/ocr/lesson pics/*.txt
 graph_engine/ocr/.ocrspace_key.txt
