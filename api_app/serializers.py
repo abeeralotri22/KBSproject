@@ -152,13 +152,28 @@ class LessonWithStoriesSerializer(serializers.ModelSerializer):
         fields = ['id', 'subject', 'subject_name', 'content', 'order', 'created_at', 'stories']
 
 
+class UserLessonSummarySerializer(serializers.ModelSerializer):
+    """Used inside User Detail to show first story and total count"""
+    first_story = serializers.SerializerMethodField()
+    total_stories = serializers.IntegerField(read_only=True)
+    subject_id = serializers.IntegerField(read_only=True)
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
 
+    class Meta:
+        model = Lesson
+        fields = ['id', 'subject_id', 'subject_name', 'content', 'total_stories', 'first_story', 'created_at']
 
+    def get_first_story(self, obj):
+        stories_cache = obj.stories.all()[:1]
+        if stories_cache:
+            return FirstStorySerializer(stories_cache[0]).data
+        return None
 
 
 class AdminUserDetailSerializer(serializers.ModelSerializer):
-    """Serializer specifically for Admins to see User -> Lessons -> Stories"""
-    lessons = LessonWithStoriesSerializer(many=True, read_only=True)
+    """Serializer for Admin viewing a specific Customer's profile and lessons"""
+    lessons = UserLessonSummarySerializer(many=True, read_only=True)
+
     class Meta:
         model = CustomUser
         fields = [
@@ -167,8 +182,7 @@ class AdminUserDetailSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'profile_image',
-            'is_active',
-            'lessons' # to automatically nest all lessons and their stories
+            'lessons'
         ]
 
 
@@ -224,4 +238,12 @@ class AdminLessonDetailSerializer(serializers.ModelSerializer):
         last = obj.user.last_name or ""
         full_name = f"{first} {last}".strip()
         return full_name if full_name else obj.user.email
+
+
+class TopUserSerializer(serializers.ModelSerializer):
+    total_first_stories = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'first_name', 'last_name', 'email', 'profile_image', 'total_first_stories']
 

@@ -25,11 +25,15 @@ urlpatterns = [
 
     # admin
     path('users/all/', views.get_all_users, name='get_all_users'),
+    path('users/<int:user_id>/details/', views.admin_get_user_detail, name='get_user_detail'),
     path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
     path('subjects/add/', views.admin_create_subject, name='admin_create_subject'),
     path('subjects/<int:subject_id>/delete/', views.admin_delete_subject, name='admin_delete_subject'),
     path('stories/', views.admin_get_all_lessons, name='get_all_lessons_and_stories'),
-    path('stories/<int:lesson_id>/', views.admin_get_lesson_detail, name='get_lesson_details')
-
+    path('stories/<int:lesson_id>/', views.admin_get_lesson_detail, name='get_lesson_details'),
+    #statistics
+    path('statistics/stories/', views.admin_story_statistics, name='admin_story_statistics'),
+    path('statistics/rating/', views.admin_subject_ratings_stats, name='admin-subject-rating-stats'),
+    path('statistics/top-users/', views.admin_top_users, name='admin-top-users'),
 
 ]

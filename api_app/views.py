@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, When, Case, IntegerField, OuterRef, Subquery, Q
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -12,7 +12,7 @@ from . import models
 from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
     SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
-    LessonWithStoriesSerializer, AdminLessonDetailSerializer
+    LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -200,6 +200,40 @@ def get_all_users(request):
     })
 
 
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_get_user_detail(request, user_id):
+    try:
+        user = CustomUser.objects.get(id=user_id, role='customer')
+    except CustomUser.DoesNotExist:
+        return Response({"error": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    lessons_qs = Lesson.objects.filter(user=user).annotate(
+        total_stories=Count('stories')
+    ).prefetch_related(
+        Prefetch('stories', queryset=Story.objects.order_by('-created_at')),
+        'subject'
+    ).order_by('-created_at')
+
+    subject_id = request.query_params.get('subject_id')
+    if subject_id:
+        try:
+            lessons_qs = lessons_qs.filter(subject_id=int(subject_id))
+        except ValueError:
+            return Response({"error": "Invalid subject_id format"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = CustomUser.objects.filter(id=user_id).prefetch_related(
+        Prefetch('lessons', queryset=lessons_qs)
+    ).first()
+
+    serializer = AdminUserDetailSerializer(user)
+    return Response({
+        "message": "User details fetched successfully",
+        "user": serializer.data
+    }, status=status.HTTP_200_OK)
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAdminUserRole])
 def toggle_customer_status(request, user_id):
@@ -296,6 +330,77 @@ def admin_get_lesson_detail(request, lesson_id):
     return Response({
         "message": "Lesson details fetched successfully",
         "lesson": serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_story_statistics(request):
+    total_stories = Story.objects.count()
+    subject_stats = Story.objects.values('lesson__subject__name').annotate(story_count=Count('id')).order_by('-story_count')
+    stories_by_subject = {
+        item['lesson__subject__name'].lower(): item['story_count']
+        for item in subject_stats
+    }
+    return Response({
+        "message": "Statistics fetched successfully",
+        "total_stories": total_stories,
+        "stories_by_subject": stories_by_subject
+    }, status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_subject_ratings_stats(request):
+    subjects = Subject.objects.annotate(
+        total_stories=Count('lessons__stories'),
+        rating_5=Count(Case(When(lessons__stories__initial_rating=5, then=1), output_field=IntegerField())),
+        rating_4=Count(Case(When(lessons__stories__initial_rating=4, then=1), output_field=IntegerField())),
+        rating_3=Count(Case(When(lessons__stories__initial_rating=3, then=1), output_field=IntegerField())),
+        rating_2=Count(Case(When(lessons__stories__initial_rating=2, then=1), output_field=IntegerField())),
+        rating_1=Count(Case(When(lessons__stories__initial_rating=1, then=1), output_field=IntegerField()))).order_by('name')
+
+    data = []
+    for subject in subjects:
+        data.append({
+            "name": subject.name.lower(),
+            "total_stories": subject.total_stories,
+            "ratings": {
+                "5": subject.rating_5,
+                "4": subject.rating_4,
+                "3": subject.rating_3,
+                "2": subject.rating_2,
+                "1": subject.rating_1
+            }
+        })
+
+    return Response({
+        "message": "Subject ratings statistics fetched successfully",
+        "subjects": data
+    }, status=status.HTTP_200_OK)
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_top_users(request):
+    first_story_subquery = Story.objects.filter(lesson=OuterRef('pk')).order_by('created_at').values('pk')[:1]
+    lessons_with_first_story = Lesson.objects.annotate( first_story_id=Subquery(first_story_subquery)).exclude(first_story_id__isnull=True)
+    top_users = CustomUser.objects.filter(role='customer').annotate(
+        total_first_stories=Count(
+            'lessons__pk',
+            filter=Q(lessons__pk__in=lessons_with_first_story.values('pk'))
+        )).order_by('-total_first_stories')[:3] # Sort highest to lowest, limit to 3
+
+    serializer = TopUserSerializer(top_users, many=True)
+    return Response({
+        "message": "Top 3 users fetched successfully",
+        "top_users": serializer.data
     }, status=status.HTTP_200_OK)
 
 
