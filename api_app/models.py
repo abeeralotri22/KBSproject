@@ -13,8 +13,10 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
+    security_key = models.PositiveIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(999999)],
+        help_text="A numeric key up to 6 digits for password recovery.Entered ONCE .")
     profile_image = models.ImageField(upload_to='users/', blank=True, null=True)
-
     subjects = models.ManyToManyField('Subject', blank=True, related_name='enrolled_users')
 
     def __str__(self):
