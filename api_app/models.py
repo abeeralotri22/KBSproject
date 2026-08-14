@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -16,7 +16,8 @@ class CustomUser(AbstractUser):
     security_key = models.PositiveIntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
         help_text="A numeric key up to 6 digits for password recovery.Entered ONCE .")
-    profile_image = models.ImageField(upload_to='users/', blank=True, null=True)
+    profile_image = models.ImageField(upload_to='users/', blank=True, null=True,
+                                      validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])])
     subjects = models.ManyToManyField('Subject', blank=True, related_name='enrolled_users')
 
     def __str__(self):
