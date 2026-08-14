@@ -248,19 +248,17 @@ def get_user_subjects_history(request):
 @permission_classes([IsAuthenticated])
 def get_subject_detail_history(request, subject_id):
     if not request.user.subjects.filter(id=subject_id).exists():
-        return Response({
-            "error": "Subject not found or you are not enrolled in it."
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Subject not found or you are not enrolled in it."}, status=status.HTTP_404_NOT_FOUND)
     lessons = Lesson.objects.filter(
         user=request.user,
-        subject_id=subject_id
-    ).prefetch_related('stories').order_by('order', 'created_at')
-    serializer = LessonWithStoriesSerializer(lessons, many=True)
-
-    return Response({
+        subject_id=subject_id).prefetch_related('stories').order_by('order', 'created_at')
+    paginator = UserPagination()
+    paginated_lessons = paginator.paginate_queryset(lessons, request)
+    serializer = LessonWithStoriesSerializer(paginated_lessons, many=True)
+    return paginator.get_paginated_response({
         "message": "Subject lessons and stories fetched successfully.",
         "lessons": serializer.data
-    }, status=status.HTTP_200_OK)
+    })
 
 
 #favorite
@@ -272,12 +270,13 @@ def get_favorite_stories(request):
         is_favorite=True
     ).order_by('-created_at')
 
-    serializer = StorySerializer(favorites, many=True)
-    return Response({
+    paginator = UserPagination()
+    paginated_favorites = paginator.paginate_queryset(favorites, request)
+    serializer = StorySerializer(paginated_favorites, many=True)
+    return paginator.get_paginated_response({
         "message": "Favorites fetched successfully.",
         "favorites": serializer.data
-    }, status=status.HTTP_200_OK)
-
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
