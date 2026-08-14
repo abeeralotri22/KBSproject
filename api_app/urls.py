@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshVie
 
 urlpatterns = [
     # register & login
-    path('register/', views.register, name='register'),
+    path('register/', views.register, name='register'),###########
     path('login/', views.login, name='login'),
     path('forgot password/',views.forgot_password, name = 'forgot-password'),
 
@@ -15,7 +15,7 @@ urlpatterns = [
     # Profile
     path('profile/', views.update_profile, name='update profile'),
     path('get_profile/', views.get_profile, name='get profile'),
-    path('change_password/', views.change_password, name='change the password'),
+    path('change_password/', views.change_password, name='change the password'),############
 
     # Subjects For Customer
     path('subjects/all/', views.get_subjects, name='get_all_subjects'),
@@ -24,12 +24,18 @@ urlpatterns = [
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
 
-    #history
+    #history###############
     path('api/user/subjects/', views.get_user_subjects_history, name='user-subjects'),
     path('api/user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
 
-    #review
+    #review#################
     path('api/stories/<int:story_id>/review/', views.review_story, name='review-story'),
+
+    #favorite######################
+
+    path('api/user/favorites/', views.get_favorite_stories, name='get-favorites'),
+    path('api/user/favorites/<int:story_id>/add/', views.add_to_favorites, name='add-favorite'),
+    path('api/user/favorites/<int:story_id>/remove/', views.remove_from_favorites, name='remove-favorite'),
 
     # admin
     path('users/all/', views.get_all_users, name='get_all_users'),

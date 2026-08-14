@@ -52,6 +52,7 @@ class Story(models.Model):
     content = models.TextField()
     initial_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     review_comment = models.TextField(blank=True, null=True)
+    is_favorite = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

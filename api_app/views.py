@@ -13,7 +13,7 @@ from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
     SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
     LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer, \
-    ForgotPasswordSerializer, ReviewStorySerializer
+    ForgotPasswordSerializer, ReviewStorySerializer, StorySerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -231,6 +231,49 @@ def get_subject_detail_history(request, subject_id):
         "lessons": serializer.data
     }, status=status.HTTP_200_OK)
 
+
+#favorite
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_favorite_stories(request):
+    favorites = Story.objects.filter(
+        lesson__user=request.user,
+        is_favorite=True
+    ).order_by('-created_at')
+
+    serializer = StorySerializer(favorites, many=True)
+    return Response({
+        "message": "Favorites fetched successfully.",
+        "favorites": serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_favorites(request, story_id):
+    try:
+        story = Story.objects.get(id=story_id, lesson__user=request.user)
+    except Story.DoesNotExist:
+        return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
+    story.is_favorite = True
+    story.save()
+    return Response({
+        "message": "Story added to favorites."
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_from_favorites(request, story_id):
+    try:
+        story = Story.objects.get(id=story_id, lesson__user=request.user)
+    except Story.DoesNotExist:
+        return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
+    story.is_favorite = False
+    story.save()
+    return Response({
+        "message": "Story removed from favorites."
+    }, status=status.HTTP_200_OK)
 
 
 

@@ -170,7 +170,7 @@ class CreateLessonSerializer(serializers.ModelSerializer):
 class StorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Story
-        fields = ['id', 'title', 'content', 'initial_rating', 'review_comment', 'created_at']
+        fields = ['id', 'title', 'content', 'initial_rating', 'review_comment','is_favorite ', 'created_at']
 
 
 
