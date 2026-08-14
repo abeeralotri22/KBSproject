@@ -114,7 +114,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['id', 'name']
+        fields = ['id', 'name','is_active']
 
 
 class UserSubjectsSerializer(serializers.ModelSerializer):
@@ -153,19 +153,15 @@ class CreateLessonSerializer(serializers.ModelSerializer):
 
     def validate_subject(self, value):
         user = self.context['request'].user
-        # to check if the chosen subject is in the user's enrolled subjects
+        if not value.is_active:
+            raise serializers.ValidationError("You cannot add lessons to a deactivated subject.")
         if value not in user.subjects.all():
-            raise serializers.ValidationError(
-                "You cannot add a lesson to this subject. Please select it first."
-            )
-
+            raise serializers.ValidationError("You cannot add a lesson to this subject. Please select it first.")
         return value
 
 
 
 #Story
-
-
 
 class StorySerializer(serializers.ModelSerializer):
     class Meta:

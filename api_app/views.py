@@ -138,13 +138,24 @@ def change_password(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_subjects(request):
-    subjects = Subject.objects.all()
+    subjects = Subject.objects.filter(is_active=True)
     serializer = SubjectSerializer(subjects, many=True)
     return Response({
         "message": "Subjects fetched successfully",
         "subjects": serializer.data
     }, status=status.HTTP_200_OK)
 
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUserRole])
+def admin_get_subjects(request):
+    subjects = Subject.objects.all()
+    serializer = SubjectSerializer(subjects, many=True)
+    return Response({
+        "message": "Subjects fetched successfully",
+        "subjects": serializer.data
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -161,6 +172,26 @@ def chosen_subjects(request):
 
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUserRole])
+def admin_toggle_subject_status(request, subject_id):
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response({"error": "Subject not found"}, status=status.HTTP_404_NOT_FOUND)
+    subject.is_active = not subject.is_active
+    subject.save()
+    status_message = "activated" if subject.is_active else "deactivated"
+    return Response({
+        "message": f"Subject {status_message} successfully",
+        "subject": {
+            "id": subject.id,
+            "name": subject.name,
+            "is_active": subject.is_active
+        }
+    }, status=status.HTTP_200_OK)
 
 
 #Lesson
@@ -201,16 +232,11 @@ def review_story(request, story_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #History
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_user_subjects_history(request):
-    subjects = request.user.subjects.all().order_by('name')
+    subjects = Subject.objects.filter(lessons__user=request.user).distinct().order_by('name')
     serializer = SubjectSerializer(subjects, many=True)
-
-    return Response({
-        "message": "Subjects fetched successfully.",
-        "subjects": serializer.data
-    }, status=status.HTTP_200_OK)
+    return Response({"message": "Subjects fetched successfully.",
+                     "subjects": serializer.data},status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -390,15 +416,15 @@ def admin_create_subject(request):
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUserRole])
-def admin_delete_subject(request, subject_id):
-    """ delete all lessons associated with this subject"""
+def admin_toggle_subject_status(request, subject_id):
     subject = Subject.objects.get(id=subject_id)
     if not subject:
         return Response({
             "error": "Subject not found"
         }, status=status.HTTP_404_NOT_FOUND)
     lesson_count = subject.lessons.count()
-    subject.delete()
+    subject.is_active = False;
+    subject.save()
     message = "Subject deleted successfully"
     if lesson_count > 0:
         message += f" (along with {lesson_count} associated lesson(s))"
