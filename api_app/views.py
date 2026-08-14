@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db import transaction
 from django.db.models import Count, Prefetch, When, Case, IntegerField, OuterRef, Subquery, Q
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -212,24 +213,28 @@ def add_lesson(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def review_story(request, story_id):
     try:
-        story = Story.objects.select_related('lesson__user').get(id=story_id)
+        with transaction.atomic():
+            story = Story.objects.select_related('lesson__user').select_for_update().get(id=story_id)
+            if story.lesson.user != request.user:
+                return Response({"error": "You do not have permission to review this story."},
+                                status=status.HTTP_403_FORBIDDEN)
+            serializer = ReviewStorySerializer(story, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "message": "Story reviewed successfully.",
+                    "story": serializer.data
+                }, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Story.DoesNotExist:
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
-    if story.lesson.user != request.user:
-        return Response({"error": "You do not have permission to review this story."}, status=status.HTTP_403_FORBIDDEN)
-    serializer = ReviewStorySerializer(story, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({
-            "message": "Story reviewed successfully.",
-            "story": serializer.data
-        }, status=status.HTTP_200_OK)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #History
 def get_user_subjects_history(request):
@@ -277,29 +282,20 @@ def get_favorite_stories(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_to_favorites(request, story_id):
-    try:
-        story = Story.objects.get(id=story_id, lesson__user=request.user)
-    except Story.DoesNotExist:
+    updated_count = Story.objects.filter(id=story_id, lesson__user=request.user).update(is_favorite=True)
+    if updated_count == 0:
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
-    story.is_favorite = True
-    story.save()
-    return Response({
-        "message": "Story added to favorites."
-    }, status=status.HTTP_200_OK)
+
+    return Response({"message": "Story added to favorites."}, status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def remove_from_favorites(request, story_id):
-    try:
-        story = Story.objects.get(id=story_id, lesson__user=request.user)
-    except Story.DoesNotExist:
+    updated_count = Story.objects.filter(id=story_id, lesson__user=request.user).update(is_favorite=False)
+    if updated_count == 0:
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
-    story.is_favorite = False
-    story.save()
-    return Response({
-        "message": "Story removed from favorites."
-    }, status=status.HTTP_200_OK)
+    return Response({"message": "Story added to favorites."}, status=status.HTTP_200_OK)
 
 
 
@@ -372,28 +368,18 @@ def admin_get_user_detail(request, user_id):
 @api_view(['PATCH'])
 @permission_classes([IsAdminUserRole])
 def toggle_customer_status(request, user_id):
-    customer = CustomUser.objects.get(id=user_id, role='customer')
     is_active = request.data.get('is_active')
-    if is_active is None:
-        return Response({
-            "error": "Please provide 'is_active' field (true/false)"
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    if not isinstance(is_active, bool):
-        return Response({
-            "error": "'is_active' must be a boolean (true/false)"
-        }, status=status.HTTP_400_BAD_REQUEST)
-    customer.is_active = is_active
-    customer.save()
+    if is_active is None or not isinstance(is_active, bool):
+        return Response({"error": "Please provide a valid boolean 'is_active'."}, status=status.HTTP_400_BAD_REQUEST)
+    updated_count = CustomUser.objects.filter(id=user_id, role='customer').update(is_active=is_active)
+    if updated_count == 0:
+        return Response({"error": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
     status_message = "activated" if is_active else "deactivated"
     return Response({
         "message": f"Customer {status_message} successfully",
         "user": {
-            "id": customer.id,
-            "email": customer.email,
-            "first_name": customer.first_name,
-            "last_name": customer.last_name,
-            "is_active": customer.is_active
+            "id": user_id,
+            "is_active": is_active
         }
     }, status=status.HTTP_200_OK)
 
