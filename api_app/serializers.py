@@ -1,5 +1,13 @@
 from rest_framework import serializers
 from .models import CustomUser, Subject, Lesson, Story
+from django.core.exceptions import ValidationError
+
+
+def validate_image_size(value):
+    max_size = 5 * 1024 * 1024  # 5MB
+    if value.size > max_size:
+        raise ValidationError(f"Image size should not exceed 5 MB.")
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -66,6 +74,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(validators=[validate_image_size], required=False)
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'profile_image']
