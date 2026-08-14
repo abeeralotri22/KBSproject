@@ -6,6 +6,7 @@ urlpatterns = [
     # register & login
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
+    path('forgot password/',views.forgot_password, name = 'forgot-password'),
 
     # built-in
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -7,7 +7,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'password']
+        fields = ['first_name', 'last_name', 'email', 'password', 'security_code']
 
     def validate_email(self, value):
         value = value.lower()
@@ -20,16 +20,49 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data['password']
         first_name = validated_data['first_name']
         last_name = validated_data['last_name']
+        security_code = validated_data['security_code']
         user = CustomUser.objects.create_user(
             username=email,
             email=email,
             first_name=first_name,
             last_name=last_name,
             password=password,
-            role='customer'
+            role='customer',
+            security_code = security_code
 
         )
         return user
+
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    security_key = serializers.IntegerField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_new_password = serializers.CharField(write_only=True, required=True)
+
+    def validate_email(self, value):
+        try:
+            self.user = CustomUser.objects.get(email=value.lower())
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("No account found with this email.")
+        return value
+
+    def validate_security_key(self, value):
+        if self.user.security_key != value:
+            raise serializers.ValidationError("Invalid security key.")
+        return value
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm_new_password']:
+            raise serializers.ValidationError({"new_password": "Passwords do not match."})
+        return attrs
+
+    def save(self, **kwargs):
+        self.user.set_password(self.validated_data['new_password'])
+        self.user.save()
+        return self.user
+
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
@@ -48,6 +81,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_image',
             'role',
+            'security_code'
             'is_active'
         ]
 
@@ -182,6 +216,7 @@ class AdminUserDetailSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'profile_image',
+            'security_code',
             'lessons'
         ]
 

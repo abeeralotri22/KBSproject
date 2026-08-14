@@ -12,7 +12,8 @@ from . import models
 from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
     SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
-    LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer
+    LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer, \
+    ForgotPasswordSerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -47,6 +48,21 @@ def register(request):
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
         }, status=status.HTTP_201_CREATED)
+
+    return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['PATCH'])
+@permission_classes([AllowAny]) # AllowAny because they forgot their password
+def forgot_password(request):
+    serializer = ForgotPasswordSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Password reset successfully. You can now log in."
+        }, status=status.HTTP_200_OK)
 
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
