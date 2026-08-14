@@ -1,0 +1,44 @@
+name: Deploy to Contabo
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: text2tale-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on server
+        env:
+          DEPLOY_HOST: ${{ secrets.CONTABO_HOST }}
+          DEPLOY_USER: ${{ secrets.CONTABO_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.CONTABO_SSH_KEY }}
+          DEPLOY_PORT: ${{ secrets.CONTABO_SSH_PORT || '22' }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/text2tale_deploy_key
+          chmod 600 ~/.ssh/text2tale_deploy_key
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+          ssh -i ~/.ssh/text2tale_deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" <<'EOF'
+          set -euo pipefail
+
+          cd /var/www/text2tale-backend
+          git fetch origin main
+          git reset --hard origin/main
+
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose build web
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose up -d --force-recreate --no-deps web
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py migrate --noinput
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py collectstatic --noinput
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose ps
+          EOF
