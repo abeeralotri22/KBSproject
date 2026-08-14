@@ -200,6 +200,36 @@ def review_story(request, story_id):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#History
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_subjects_history(request):
+    subjects = request.user.subjects.all().order_by('name')
+    serializer = SubjectSerializer(subjects, many=True)
+
+    return Response({
+        "message": "Subjects fetched successfully.",
+        "subjects": serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_subject_detail_history(request, subject_id):
+    if not request.user.subjects.filter(id=subject_id).exists():
+        return Response({
+            "error": "Subject not found or you are not enrolled in it."
+        }, status=status.HTTP_404_NOT_FOUND)
+    lessons = Lesson.objects.filter(
+        user=request.user,
+        subject_id=subject_id
+    ).prefetch_related('stories').order_by('order', 'created_at')
+    serializer = LessonWithStoriesSerializer(lessons, many=True)
+
+    return Response({
+        "message": "Subject lessons and stories fetched successfully.",
+        "lessons": serializer.data
+    }, status=status.HTTP_200_OK)
 
 
 
