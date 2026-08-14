@@ -13,7 +13,7 @@ from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
     SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
     LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer, \
-    ForgotPasswordSerializer
+    ForgotPasswordSerializer, ReviewStorySerializer
 
 
 class IsAdminUserRole(permissions.BasePermission):
@@ -179,6 +179,26 @@ def add_lesson(request):
         }, status=status.HTTP_201_CREATED)
 
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def review_story(request, story_id):
+    try:
+        story = Story.objects.select_related('lesson__user').get(id=story_id)
+    except Story.DoesNotExist:
+        return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
+    if story.lesson.user != request.user:
+        return Response({"error": "You do not have permission to review this story."}, status=status.HTTP_403_FORBIDDEN)
+    serializer = ReviewStorySerializer(story, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Story reviewed successfully.",
+            "story": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

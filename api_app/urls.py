@@ -24,6 +24,9 @@ urlpatterns = [
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
 
+    #review
+    path('api/stories/<int:story_id>/review/', views.review_story, name='review-story'),
+
     # admin
     path('users/all/', views.get_all_users, name='get_all_users'),
     path('users/<int:user_id>/details/', views.admin_get_user_detail, name='get_user_detail'),

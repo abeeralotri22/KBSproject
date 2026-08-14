@@ -282,3 +282,23 @@ class TopUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'first_name', 'last_name', 'email', 'profile_image', 'total_first_stories']
 
+
+class ReviewStorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Story
+        fields = ['initial_rating', 'review_comment']
+
+    def validate_initial_rating(self, value):
+        if value is not None and (value < 1 or value > 5):
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
+        return value
+
+    def validate(self, attrs):
+        rating = attrs.get('initial_rating')
+        comment = attrs.get('review_comment')
+        if rating is None and not comment:
+            raise serializers.ValidationError({
+                "detail": "You must provide at least a rating or a comment to submit a review."
+            })
+
+        return attrs
