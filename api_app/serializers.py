@@ -15,7 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'password', 'security_code']
+        fields = ['first_name', 'last_name', 'email', 'password', 'security_key']
 
     def validate_email(self, value):
         value = value.lower()
@@ -28,7 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data['password']
         first_name = validated_data['first_name']
         last_name = validated_data['last_name']
-        security_code = validated_data['security_code']
+        security_key = validated_data['security_key']
         user = CustomUser.objects.create_user(
             username=email,
             email=email,
@@ -36,7 +36,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=last_name,
             password=password,
             role='customer',
-            security_code = security_code
+            security_key=security_key
 
         )
         return user
@@ -90,7 +90,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_image',
             'role',
-            'security_code'
+            'security_key',
             'is_active'
         ]
 
@@ -175,7 +175,7 @@ class CreateLessonSerializer(serializers.ModelSerializer):
 class StorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Story
-        fields = ['id', 'title', 'content', 'initial_rating', 'review_comment','is_favorite ', 'created_at']
+        fields = ['id', 'title', 'content', 'initial_rating', 'review_comment', 'is_favorite', 'created_at']
 
 
 
@@ -221,7 +221,7 @@ class AdminUserDetailSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'profile_image',
-            'security_code',
+            'security_key',
             'lessons'
         ]
 
