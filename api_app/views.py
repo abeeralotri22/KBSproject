@@ -490,7 +490,7 @@ def admin_story_statistics(request):
 @permission_classes([IsAdminUserRole])
 @cache_page(60 * 5)
 def admin_subject_ratings_stats(request):
-    subjects = Subject.objects.annotate(
+    subjects = Subject.objects.filter(is_active=True).annotate(
         total_stories=Count('lessons__stories'),
         rating_5=Count(Case(When(lessons__stories__initial_rating=5, then=1), output_field=IntegerField())),
         rating_4=Count(Case(When(lessons__stories__initial_rating=4, then=1), output_field=IntegerField())),
