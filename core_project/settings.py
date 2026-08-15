@@ -27,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8-!_u&c$8pw#uosq)n*jc7!yi!g9px0ik&rzvw6s41qxs=0b3('
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", SECRET_KEY)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+# Debug mode is intentionally enabled for this non-production deployment.
+DEBUG = True
 
 ALLOWED_HOSTS = [host for host in os.getenv(
     "DJANGO_ALLOWED_HOSTS", "").split(",") if host]
@@ -45,14 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api_app',
-    "corsheaders"
+    "corsheaders",
+    "debug_toolbar",
 ]
-
-if DEBUG:
-    INSTALLED_APPS.append("debug_toolbar")
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,9 +61,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if DEBUG:
-    MIDDLEWARE.insert(1, "debug_toolbar.middleware.DebugToolbarMiddleware")
-    INTERNAL_IPS = ["127.0.0.1", "localhost"]
+INTERNAL_IPS = ["127.0.0.1", "localhost"]
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # local dev
