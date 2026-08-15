@@ -20,6 +20,27 @@ from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfil
     ForgotPasswordSerializer, ReviewStorySerializer, StorySerializer
 
 
+def safe_cache_get(key):
+    try:
+        return cache.get(key)
+    except Exception:
+        return None
+
+
+def safe_cache_set(key, value, timeout=None):
+    try:
+        cache.set(key, value, timeout=timeout)
+    except Exception:
+        pass
+
+
+def safe_cache_delete(key):
+    try:
+        cache.delete(key)
+    except Exception:
+        pass
+
+
 class IsAdminUserRole(permissions.BasePermission):
 
     def has_permission(self, request, view):
@@ -143,7 +164,7 @@ def change_password(request):
 @permission_classes([IsAuthenticated])
 def get_subjects(request):
     cache_key = "all_active_subjects"
-    cached_data = cache.get(cache_key)
+    cached_data = safe_cache_get(cache_key)
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
@@ -153,7 +174,7 @@ def get_subjects(request):
         "message": "Subjects fetched successfully",
         "subjects": serializer.data
     }
-    cache.set(cache_key, response_data, timeout=86400)
+    safe_cache_set(cache_key, response_data, timeout=86400)
     return Response(response_data, status=status.HTTP_200_OK)
 
 
@@ -194,7 +215,7 @@ def admin_toggle_subject_status(request, subject_id):
         return Response({"error": "Subject not found"}, status=status.HTTP_404_NOT_FOUND)
     subject.is_active = not subject.is_active
     subject.save()
-    cache.delete("all_active_subjects")
+    safe_cache_delete("all_active_subjects")
     status_message = "activated" if subject.is_active else "deactivated"
     return Response({
         "message": f"Subject {status_message} successfully",
@@ -402,7 +423,7 @@ def admin_create_subject(request):
     serializer = SubjectSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        cache.delete("all_active_subjects")
+        safe_cache_delete("all_active_subjects")
         return Response({
             "message": "Subject created successfully",
             "subject": serializer.data
@@ -537,5 +558,4 @@ def admin_top_users(request):
         "message": "Top 3 users fetched successfully",
         "top_users": serializer.data
     }, status=status.HTTP_200_OK)
-
 
