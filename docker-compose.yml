@@ -11,12 +11,26 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   web:
     build: .
     restart: unless-stopped
     env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/1
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "127.0.0.1:8050:8000"
