@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.db.models import Count, Prefetch, When, Case, IntegerField, OuterRef, Subquery, Q
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -8,6 +10,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 from . import models
 from .models import CustomUser, Subject, Lesson, Story
@@ -139,12 +142,19 @@ def change_password(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_subjects(request):
+    cache_key = "all_active_subjects"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
     subjects = Subject.objects.filter(is_active=True)
     serializer = SubjectSerializer(subjects, many=True)
-    return Response({
+    response_data = {
         "message": "Subjects fetched successfully",
         "subjects": serializer.data
-    }, status=status.HTTP_200_OK)
+    }
+    cache.set(cache_key, response_data, timeout=86400)
+    return Response(response_data, status=status.HTTP_200_OK)
 
 
 
@@ -184,6 +194,7 @@ def admin_toggle_subject_status(request, subject_id):
         return Response({"error": "Subject not found"}, status=status.HTTP_404_NOT_FOUND)
     subject.is_active = not subject.is_active
     subject.save()
+    cache.delete("all_active_subjects")
     status_message = "activated" if subject.is_active else "deactivated"
     return Response({
         "message": f"Subject {status_message} successfully",
@@ -391,6 +402,7 @@ def admin_create_subject(request):
     serializer = SubjectSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
+        cache.delete("all_active_subjects")
         return Response({
             "message": "Subject created successfully",
             "subject": serializer.data
@@ -458,6 +470,7 @@ def admin_get_lesson_detail(request, lesson_id):
 
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
+@cache_page(60 * 5)
 def admin_story_statistics(request):
     total_stories = Story.objects.count()
     subject_stats = Story.objects.values('lesson__subject__name').annotate(story_count=Count('id')).order_by('-story_count')
@@ -475,6 +488,7 @@ def admin_story_statistics(request):
 
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
+@cache_page(60 * 5)
 def admin_subject_ratings_stats(request):
     subjects = Subject.objects.annotate(
         total_stories=Count('lessons__stories'),
@@ -508,6 +522,7 @@ def admin_subject_ratings_stats(request):
 
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
+@cache_page(60 * 5)
 def admin_top_users(request):
     first_story_subquery = Story.objects.filter(lesson=OuterRef('pk')).order_by('created_at').values('pk')[:1]
     lessons_with_first_story = Lesson.objects.annotate( first_story_id=Subquery(first_story_subquery)).exclude(first_story_id__isnull=True)
