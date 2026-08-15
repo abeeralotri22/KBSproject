@@ -38,6 +38,8 @@ jobs:
           git reset --hard origin/main
 
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose build web
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose down --remove-orphans || true
+          docker ps -aq --filter "name=text2tale-backend-" | xargs -r docker rm -f
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose up -d --force-recreate --remove-orphans
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py migrate --noinput
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py collectstatic --noinput
