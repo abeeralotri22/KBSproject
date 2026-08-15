@@ -142,18 +142,18 @@ def change_password(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_subjects(request):
-    cache_key = "all_active_subjects"
-    cached_data = cache.get(cache_key)
+    # cache_key = "all_active_subjects"
+    # cached_data = cache.get(cache_key)
 
-    if cached_data is not None:
-        return Response(cached_data, status=status.HTTP_200_OK)
+    # if cached_data is not None:
+    #     return Response(cached_data, status=status.HTTP_200_OK)
     subjects = Subject.objects.filter(is_active=True)
     serializer = SubjectSerializer(subjects, many=True)
     response_data = {
         "message": "Subjects fetched successfully",
         "subjects": serializer.data
     }
-    cache.set(cache_key, response_data, timeout=86400)
+    # cache.set(cache_key, response_data, timeout=86400)
     return Response(response_data, status=status.HTTP_200_OK)
 
 
