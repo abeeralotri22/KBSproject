@@ -38,7 +38,7 @@ jobs:
           git reset --hard origin/main
 
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose build web
-          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose up -d --force-recreate --no-deps web
+          COMPOSE_PROJECT_NAME=text2tale-backend docker-compose up -d --force-recreate --remove-orphans
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py migrate --noinput
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose exec -T web python manage.py collectstatic --noinput
           COMPOSE_PROJECT_NAME=text2tale-backend docker-compose ps
