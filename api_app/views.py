@@ -471,22 +471,24 @@ def admin_create_subject(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['DELETE'])
+from django.shortcuts import get_object_or_404  # Add this to your imports
+
+
+@api_view(['PATCH'])
 @permission_classes([IsAdminUserRole])
 def admin_toggle_subject_status(request, subject_id):
-    subject = Subject.objects.get(id=subject_id)
-    if not subject:
-        return Response({
-            "error": "Subject not found"
-        }, status=status.HTTP_404_NOT_FOUND)
-    lesson_count = subject.lessons.count()
-    subject.is_active = False;
+    subject = get_object_or_404(Subject, id=subject_id)
+    subject.is_active = not subject.is_active
     subject.save()
-    message = "Subject deleted successfully"
-    if lesson_count > 0:
-        message += f" (along with {lesson_count} associated lesson(s))"
+    status_text = "activated" if subject.is_active else "deactivated"
+    message = f"Subject {status_text} successfully"
+
+    if not subject.is_active and subject.lessons.count() > 0:
+        message += f" ({subject.lessons.count()} associated lesson(s) are now hidden)"
+
     return Response({
-        "message": message
+        "message": message,
+        "is_active": subject.is_active
     }, status=status.HTTP_200_OK)
 
 
