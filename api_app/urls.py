@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
-
+from .views import generate_story
 urlpatterns = [
     # register & login
     path('register/', views.register, name='register'),###########
@@ -24,12 +24,23 @@ urlpatterns = [
 
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
-    path('lesson/add-ocr/',views.add_lesson_from_ocr,name='adding_lesson_from_ocr'),
+
+    path(
+        'lesson/add-ocr/',
+        views.add_lesson_from_ocr,
+        name='adding_lesson_from_ocr'
+    ),
+
+
 
     #history###############
     path('user/subjects/', views.get_user_subjects_history, name='user-subjects'),
     path('user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
-
+    path(
+        'lessons/<int:lesson_id>/generate-story/',
+        generate_story,
+        name='generate_story'
+    ),
     #review
     path('stories/<int:story_id>/review/', views.review_story, name='review-story'),
 

@@ -40,16 +40,30 @@ def clean(text) -> str:
     return " ".join(str(text).strip().split())
 
 
-def load_antonym_graph(antonym_plot_path: str, antonym_chain_filename: str = "antonym_chain.json") -> dict:
+def load_antonym_graph(
+        antonym_plot_path: Optional[str],
+        antonym_chain_filename: str = "antonym_chain.json"
+) -> dict:
+
+    # إذا لم يتم إنشاء antonym_plot.json لهذا النوع من القصص
+    if not antonym_plot_path:
+        return {}
+
     try:
         return load_json(antonym_plot_path)
+
     except FileNotFoundError:
+
         try:
-            fallback_path = os.path.join(os.path.dirname(antonym_plot_path) or ".", antonym_chain_filename)
+            fallback_path = os.path.join(
+                os.path.dirname(antonym_plot_path) or ".",
+                antonym_chain_filename
+            )
+
             return load_json(fallback_path)
+
         except FileNotFoundError:
             return {}
-
 
 NO_DEFINITE_PARTICLES = {
     "لا", "من", "في", "على", "إلى", "الى", "عن", "مع", "أو", "او", "و", "ثم",
@@ -1471,6 +1485,49 @@ def generate_story(sna_graph_path: str,
 
     return "\n\n".join(s for s in sections if s.strip())
 
+def create_and_enhance_story(
+        sna_graph_path: str,
+        antonym_plot_path: str,
+        sna_graph_filtered_path: str,
+        story_elements_path: Optional[str],
+        api_key: str,
+        seed: Optional[int] = None,
+) -> dict:
+    """
+    توليد القصة من ملفات التحليل ثم تحسينها بواسطة Gemini.
+
+    Returns:
+        {
+            "original_story": "...",
+            "enhanced_story": "..."
+        }
+    """
+
+    # 1. توليد القصة الأصلية
+    original_story = generate_story(
+        sna_graph_path=sna_graph_path,
+        antonym_plot_path=antonym_plot_path,
+        sna_graph_filtered_path=sna_graph_filtered_path,
+        story_elements_path=story_elements_path,
+        seed=seed,
+    )
+
+    if not original_story:
+        raise Exception("فشل توليد القصة الأصلية.")
+
+    # 2. تحسين القصة بواسطة Gemini
+    enhanced_story = refine_story_with_llm(
+        story_text=original_story,
+        api_key=api_key,
+    )
+
+    if not enhanced_story:
+        raise Exception("فشل تحسين القصة.")
+
+    return {
+        "original_story": original_story,
+        "enhanced_story": enhanced_story,
+    }
 
 if __name__ == "__main__":
     story_text = generate_story(
