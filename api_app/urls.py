@@ -42,7 +42,7 @@ urlpatterns = [
     path('user/favorites/<int:story_id>/remove/', views.remove_from_favorites, name='remove-favorite'),
 
     # admin
-    path('users/all/', views.get_all_users, name='get_all_users'),
+    path('search/all/', views.get_all_users, name='get_all_users'),
     path('users/<int:user_id>/details/', views.admin_get_user_detail, name='get_user_detail'),
     path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
     path('subjects/add/', views.admin_create_subject, name='admin_create_subject'),
