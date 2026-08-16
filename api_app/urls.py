@@ -15,7 +15,7 @@ urlpatterns = [
     # Profile
     path('profile/', views.update_profile, name='update profile'),
     path('get_profile/', views.get_profile, name='get profile'),
-    path('change_password/', views.change_password, name='change the password'),############
+    path('change_password/', views.change_password, name='change the password'),
 
     # Subjects For Customer
     path('subjects/all/', views.get_subjects, name='get_all_subjects'),
@@ -25,15 +25,15 @@ urlpatterns = [
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
     path('lesson/add-ocr/',views.add_lesson_from_ocr,name='adding_lesson_from_ocr'),
+
     #history###############
     path('user/subjects/', views.get_user_subjects_history, name='user-subjects'),
     path('user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
 
-    #review#################
+    #review
     path('stories/<int:story_id>/review/', views.review_story, name='review-story'),
 
-    #favorite######################
-
+    #favorite
     path('user/favorites/', views.get_favorite_stories, name='get-favorites'),
     path('user/favorites/<int:story_id>/add/', views.add_to_favorites, name='add-favorite'),
     path('user/favorites/<int:story_id>/remove/', views.remove_from_favorites, name='remove-favorite'),

@@ -321,6 +321,8 @@ def review_story(request, story_id):
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
 
 #History
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_user_subjects_history(request):
     subjects = Subject.objects.filter(lessons__user=request.user).distinct().order_by('name')
     serializer = SubjectSerializer(subjects, many=True)
