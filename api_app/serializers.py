@@ -124,6 +124,9 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = ['id', 'name','is_active']
+        extra_kwargs = {
+            'is_active': {'default': True, 'required': False}
+        }
 
 
 class UserSubjectsSerializer(serializers.ModelSerializer):
