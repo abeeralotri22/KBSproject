@@ -378,7 +378,7 @@ def remove_from_favorites(request, story_id):
     updated_count = Story.objects.filter(id=story_id, lesson__user=request.user).update(is_favorite=False)
     if updated_count == 0:
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
-    return Response({"message": "Story added to favorites."}, status=status.HTTP_200_OK)
+    return Response({"message": "Story removed from favorites."}, status=status.HTTP_200_OK)
 
 
 
