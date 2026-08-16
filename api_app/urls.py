@@ -29,11 +29,11 @@ urlpatterns = [
         name='adding_lesson_from_ocr'
     ),
     #history###############
-    path('api/user/subjects/', views.get_user_subjects_history, name='user-subjects'),
-    path('api/user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
+    path('user/subjects/', views.get_user_subjects_history, name='user-subjects'),
+    path('user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
 
     #review#################
-    path('api/stories/<int:story_id>/review/', views.review_story, name='review-story'),
+    path('stories/<int:story_id>/review/', views.review_story, name='review-story'),
 
     #favorite######################
 
