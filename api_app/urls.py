@@ -20,14 +20,11 @@ urlpatterns = [
     # Subjects For Customer
     path('subjects/all/', views.get_subjects, name='get_all_subjects'),
     path('subjects/choose/', views.chosen_subjects, name='choose'),
+    path('subjects/chosen/',views.get_enrolled_subjects, name='get-enrolled-subjects'),
 
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
-    path(
-        'lesson/add-ocr/',
-        views.add_lesson_from_ocr,
-        name='adding_lesson_from_ocr'
-    ),
+    path('lesson/add-ocr/',views.add_lesson_from_ocr,name='adding_lesson_from_ocr'),
     #history###############
     path('user/subjects/', views.get_user_subjects_history, name='user-subjects'),
     path('user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),

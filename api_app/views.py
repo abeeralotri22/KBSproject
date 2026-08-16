@@ -184,6 +184,19 @@ def chosen_subjects(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_enrolled_subjects(request):
+    subjects = request.user.subjects.filter(is_active=True).order_by('name')
+    serializer = SubjectSerializer(subjects, many=True)
+    return Response({
+        "message": "Enrolled subjects fetched successfully",
+        "enrolled_subjects": serializer.data,
+        "total_count": subjects.count()
+    }, status=status.HTTP_200_OK)
+
+
+
 
 @api_view(['PATCH'])
 @permission_classes([IsAdminUserRole])
