@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from graph_engine.ocr.ocr_extract import extract_text_from_image
-
+from django.shortcuts import get_object_or_404
 from . import models
 from .models import CustomUser, Subject, Lesson, Story
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
@@ -471,7 +471,7 @@ def admin_create_subject(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-from django.shortcuts import get_object_or_404  # Add this to your imports
+
 
 
 @api_view(['PATCH'])
