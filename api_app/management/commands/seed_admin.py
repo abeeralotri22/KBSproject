@@ -19,6 +19,8 @@ class Command(BaseCommand):
             password=admin_password,
             first_name = admin_first_name,
             last_name = admin_last_name,
-            role='admin'
+            role='admin',
+            security_key='1234'
+
         )
         self.stdout.write(self.style.SUCCESS(f'SUCCESS: Admin user "{admin_email}" created successfully!'))

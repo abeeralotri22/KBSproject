@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes, parser_class
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from graph_engine.ocr.ocr_extract import extract_text_from_image
 
 from . import models
 from .models import CustomUser, Subject, Lesson, Story
@@ -224,7 +224,67 @@ def add_lesson(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def add_lesson_from_ocr(request):
+    image = request.FILES.get('image')
+    subject_id = request.data.get('subject_id')
+    order = request.data.get('order', 0)
 
+    if not image:
+        return Response(
+            {"error": "Please upload an image."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not subject_id:
+        return Response(
+            {"error": "Please provide subject_id."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response(
+            {"error": "Subject not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    try:
+        text = extract_text_from_image(image)
+    except Exception as e:
+        return Response(
+            {
+                "error": "OCR processing failed.",
+                "details": str(e)
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    if not text:
+        return Response(
+            {"error": "No text was extracted from the image."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    lesson = Lesson.objects.create(
+        content=text,
+        order=order,
+        user=request.user,
+        subject=subject
+    )
+
+    serializer = LessonSerializer(lesson)
+
+    return Response(
+        {
+            "message": "Lesson created successfully from OCR.",
+            "lesson": serializer.data
+        },
+        status=status.HTTP_201_CREATED
+    )
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])

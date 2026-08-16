@@ -27,6 +27,7 @@ services:
     env_file: .env
     environment:
       REDIS_URL: redis://redis:6379/1
+      OCRSPACE_API_KEY: "K88505287088957"
     depends_on:
       db:
         condition: service_healthy

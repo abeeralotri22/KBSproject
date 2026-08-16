@@ -15,3 +15,6 @@ graph_engine/ocr/lesson pics/*.txt
 graph_engine/ocr/.ocrspace_key.txt
 *.key.txt
 graph_engine/ocr/README.md
+venv/
+__pycache__/
+*.pyc
