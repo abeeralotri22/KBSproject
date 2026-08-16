@@ -374,15 +374,16 @@ def remove_from_favorites(request, story_id):
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
 def get_all_users(request):
-    users = CustomUser.objects.filter(role = 'customer').order_by('-date_joined')
-    search = request.query_params.get('search')
-    if search:
-        users = users.filter(
-            models.Q(first_name__icontains=search) |
-            models.Q(last_name__icontains=search) |
-            models.Q(email__icontains=search)
-
-        )
+    users = CustomUser.objects.filter(role='customer').order_by('-date_joined')
+    first_name = request.query_params.get('first_name')
+    if first_name:
+        users = users.filter(first_name__icontains=first_name)
+    last_name = request.query_params.get('last_name')
+    if last_name:
+        users = users.filter(last_name__icontains=last_name)
+    email = request.query_params.get('email')
+    if email:
+        users = users.filter(email__icontains=email)
     is_active_param = request.query_params.get('is_active')
     if is_active_param is not None:
         if is_active_param.lower() in ['true', '1', 'yes']:
@@ -399,7 +400,6 @@ def get_all_users(request):
         "total_users": users.count(),
         "users": serializer.data
     })
-
 
 
 @api_view(['GET'])
