@@ -142,9 +142,21 @@ class UserSubjectsSerializer(serializers.ModelSerializer):
     def validate_subjects(self, value):
         if len(value) < 1:
             raise serializers.ValidationError("You must select at least one subject.")
-        if len(value) > 3:
-            raise serializers.ValidationError("You cannot select more than 3 subjects.")
+        if self.instance:
+            existing_ids = set(self.instance.subjects.values_list('id', flat=True))
+            new_ids = {s.id for s in value}
+            total_unique_subjects = len(existing_ids.union(new_ids))
+
+            if total_unique_subjects > 3:
+                raise serializers.ValidationError("You cannot be enrolled in more than 3 subjects in total.")
+
         return value
+
+    def update(self, instance, validated_data):
+        new_subjects = validated_data.get('subjects', [])
+        instance.subjects.add(*new_subjects)
+        return instance
+
 
 
 #Lesson

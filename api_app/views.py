@@ -168,7 +168,7 @@ def admin_get_subjects(request):
         "subjects": serializer.data
     }, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def chosen_subjects(request):
     user = request.user
