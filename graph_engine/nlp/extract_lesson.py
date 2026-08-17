@@ -20,7 +20,7 @@ PROJECT_ROOT = HERE.parent.parent
 load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 INPUT_TEXT_PATH = HERE / "input_text.txt"
-OUTPUT_PATH = HERE / "llm_output.json"
+OUTPUT_PATH = HERE / "relation_extraction.json"
 ARCHIVE_DIR = HERE / "archive"
 ONTOLOGY_PATH = HERE.parent / "sna" / "antonym_ontology.json"
 JUDY_API_URL = "https://judy4444-text2tale-nlp.hf.space/generate_graph"

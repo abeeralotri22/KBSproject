@@ -7,7 +7,7 @@ import requests
 
 # with open('nlp/nlp_output.json', 'r', encoding='utf-8') as f:  # علوم1 ✅
 # with open('nlp/nlp2_output.json', 'r', encoding='utf-8') as f: # تنوع بيئي
-# with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2 
+# with open('nlp/nlp4_output.json', 'r', encoding='utf-8') as f:  # علوم2
 # with open('nlp/nlp5_output.json', 'r', encoding='utf-8') as f:  # علوم3 ✅
 # with open('nlp/nlp6_output.json', 'r', encoding='utf-8') as f:  # علوم4 ✅ تسلسل
 # with open('nlp/nlp_text1.json', 'r', encoding='utf-8') as f:  # test: الليف العضلي المخطط (descriptive) النص ركيك
@@ -29,7 +29,7 @@ import requests
 # with open('nlp/new_nlp_text6.json', 'r', encoding='utf-8') as f:  # test: المرونة العصبية والذاكرة (mixed)  (sus)
 # with open('nlp/new_nlp_text7.json', 'r', encoding='utf-8') as f:  # test: عضلات الأذن الوسطى (causal, dual branch) ✅
 # with open('nlp/new_nlp_text8.json', 'r', encoding='utf-8') as f:  # test: كمون المستقبل السمعي (causal ) ✅
-# with open('nlp/new_nlp_text9.json', 'r', encoding='utf-8') as f:  # test: إنتاش حبة الطلع (descريptive/process) (sus) 
+# with open('nlp/new_nlp_text9.json', 'r', encoding='utf-8') as f:  # test: إنتاش حبة الطلع (descريptive/process) (sus)
 
 # with open('nlp/geo_text1.json', 'r', encoding='utf-8') as f:  # test: انتاج حيواني (hub)  sus
 # with open('nlp/geo_text2.json', 'r', encoding='utf-8') as f:  # test: تملح التربة (hub) ✅
@@ -44,30 +44,28 @@ import requests
 # with open('nlp/hist_text3.json', 'r', encoding='utf-8') as f:  # test: التنافس البريطاني الفرنسي على مصر (hub) ✅
 
 
-with open('nlp/llm_output.json', 'r', encoding='utf-8') as f:
+with open('nlp/relation_extraction.json', 'r', encoding='utf-8') as f:
 
+    # with open('nlp/text1_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text2_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text3_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text4_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text5_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text6_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text7_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text8_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/text9_output.json', 'r', encoding='utf-8') as f:
 
-# with open('nlp/text1_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text2_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text3_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text4_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text5_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text6_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text7_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text8_output.json', 'r', encoding='utf-8') as f:
-# with open('nlp/text9_output.json', 'r', encoding='utf-8') as f:
-
-
-# with open('nlp/judy.json', 'r', encoding='utf-8') as f:
-# with open('nlp/judy2.json', 'r', encoding='utf-8') as f: hub الشبكية ✅
-# with open('nlp/judy3.json', 'r', encoding='utf-8') as f: # الليف العضلي ✅
-# with open('nlp/judy4.json', 'r', encoding='utf-8') as f: # المشيمة
-# with open('nlp/judy5.json', 'r', encoding='utf-8') as f:
-# with open('nlp/judy6.json', 'r', encoding='utf-8') as f: الانارة
-# with open('nlp/judy7.json', 'r', encoding='utf-8') as f: # تسوس
-# with open('nlp/judy8.json', 'r', encoding='utf-8') as f:  # معدة ، علاقات غريبة
-# with open('nlp/judy9.json', 'r', encoding='utf-8') as f:
-# with open('nlp/llm_output.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/judy.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/judy2.json', 'r', encoding='utf-8') as f: hub الشبكية ✅
+    # with open('nlp/judy3.json', 'r', encoding='utf-8') as f: # الليف العضلي ✅
+    # with open('nlp/judy4.json', 'r', encoding='utf-8') as f: # المشيمة
+    # with open('nlp/judy5.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/judy6.json', 'r', encoding='utf-8') as f: الانارة
+    # with open('nlp/judy7.json', 'r', encoding='utf-8') as f: # تسوس
+    # with open('nlp/judy8.json', 'r', encoding='utf-8') as f:  # معدة ، علاقات غريبة
+    # with open('nlp/judy9.json', 'r', encoding='utf-8') as f:
+    # with open('nlp/llm_output.json', 'r', encoding='utf-8') as f:
 
     data = json.load(f)
 
