@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -438,6 +439,8 @@ def check_ontology_coverage(data):
 
 
 def _normalize(text):
+    text = unicodedata.normalize("NFC", text)
+    text = re.sub(r"\s+([،؛:؟!\.,;:!?])", r"\1", text)
     return " ".join(text.split())
 
 
