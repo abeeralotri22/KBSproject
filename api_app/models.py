@@ -62,3 +62,26 @@ class Story(models.Model):
 
     def __str__(self):
         return f"Story: {self.title} ({self.initial_rating}/5)"
+
+class StoryHistory(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='story_history'
+    )
+
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        related_name='story_histories'
+    )
+
+    enhanced_story = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.lesson.subject.name} - {self.created_at}"

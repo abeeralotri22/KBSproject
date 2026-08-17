@@ -11,14 +11,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from graph_engine.ocr.ocr_extract import extract_text_from_image
-
+from .story_service import generate_story_for_lesson
 from . import models
-from .models import CustomUser, Subject, Lesson, Story
+from .models import CustomUser, Subject, Lesson, Story, StoryHistory
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
     SubjectSerializer, UserSubjectsSerializer, CreateLessonSerializer, LessonSerializer, AdminLessonListSerializer, \
     LessonWithStoriesSerializer, AdminLessonDetailSerializer, AdminUserDetailSerializer, TopUserSerializer, \
-    ForgotPasswordSerializer, ReviewStorySerializer, StorySerializer
-
+    ForgotPasswordSerializer, ReviewStorySerializer,StoryHistorySerializer, StorySerializer
+import os
+from pathlib import Path
+from graph_engine.creatingStory.creatingStory import create_and_enhance_story
 
 class IsAdminUserRole(permissions.BasePermission):
 

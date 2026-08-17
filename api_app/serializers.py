@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import CustomUser, Subject, Lesson, Story
 from django.core.exceptions import ValidationError
-
+from .models import StoryHistory
 
 def validate_image_size(value):
     max_size = 5 * 1024 * 1024  # 5MB
@@ -307,3 +307,26 @@ class ReviewStorySerializer(serializers.ModelSerializer):
             })
 
         return attrs
+
+class StoryHistorySerializer(serializers.ModelSerializer):
+    lesson_id = serializers.IntegerField(source='lesson.id', read_only=True)
+    subject_name = serializers.CharField(
+        source='lesson.subject.name',
+        read_only=True
+    )
+
+    class Meta:
+        model = StoryHistory
+        fields = [
+            'id',
+            'lesson_id',
+            'subject_name',
+            'enhanced_story',
+            'created_at',
+        ]
+        read_only_fields = [
+            'id',
+            'lesson_id',
+            'subject_name',
+            'created_at',
+        ]
