@@ -10,7 +10,7 @@ import requests
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from google.genai.errors import ServerError
+from google.genai.errors import ServerError, ClientError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 HERE = Path(__file__).resolve().parent
@@ -274,6 +274,16 @@ def _log_retry(retry_state):
           f"بعد {wait:.0f} ثانية... ({exc})")
 
 
+# كل موديل عنده سقف طلبات يومي منفصل (free tier)، فلما موديل يوصل لحده
+# (429 RESOURCE_EXHAUSTED) ننتقل للي بعده تلقائيًا بدل ما نوقف بالكامل.
+MODEL_FALLBACK_CHAIN = [
+    "gemini-2.5-flash",
+    "gemini-3.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3.1-flash-lite",
+]
+
+
 @retry(
     retry=retry_if_exception_type(ServerError),
     stop=stop_after_attempt(5),
@@ -281,7 +291,7 @@ def _log_retry(retry_state):
     before_sleep=_log_retry,
     reraise=True,
 )
-def call_gemini(text, judy_raw, api_key):
+def _call_gemini_once(text, judy_raw, api_key, model):
     client = genai.Client(api_key=api_key)
 
     # few-shot examples as real prior turns (not text baked into the system
@@ -315,7 +325,7 @@ def call_gemini(text, judy_raw, api_key):
     ))
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model=model,
         contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -337,6 +347,25 @@ def call_gemini(text, judy_raw, api_key):
         raise RuntimeError(
             f"Gemini أعاد استجابة بدون نص (finish_reason={reason}).")
     return response.text
+
+
+def call_gemini(text, judy_raw, api_key):
+    last_error = None
+    for i, model in enumerate(MODEL_FALLBACK_CHAIN):
+        try:
+            print(f"استخدام الموديل: {model}")
+            return _call_gemini_once(text, judy_raw, api_key, model)
+        except ClientError as e:
+            if e.code == 429:
+                last_error = e
+                remaining = MODEL_FALLBACK_CHAIN[i + 1:]
+                if remaining:
+                    print(f"نفد سقف الموديل {model} (429) — "
+                          f"الانتقال إلى {remaining[0]}...")
+                    continue
+                print(f"نفد سقف كل الموديلات المتاحة ({', '.join(MODEL_FALLBACK_CHAIN)}).")
+            raise
+    raise last_error
 
 
 def extract_json(raw_text):
