@@ -148,18 +148,18 @@ def change_password(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_subjects(request):
-    # cache_key = "all_active_subjects"
-    # cached_data = cache.get(cache_key)
+    cache_key = "all_active_subjects"
+    cached_data = cache.get(cache_key)
 
-    # if cached_data is not None:
-    #     return Response(cached_data, status=status.HTTP_200_OK)
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
     subjects = Subject.objects.filter(is_active=True)
     serializer = SubjectSerializer(subjects, many=True)
     response_data = {
         "message": "Subjects fetched successfully",
         "subjects": serializer.data
     }
-    # cache.set(cache_key, response_data, timeout=86400)
+    cache.set(cache_key, response_data, timeout=86400)
     return Response(response_data, status=status.HTTP_200_OK)
 
 
@@ -495,22 +495,22 @@ def admin_create_subject(request):
 
 
 
-@api_view(['PATCH'])
-@permission_classes([IsAdminUserRole])
-def admin_toggle_subject_status(request, subject_id):
-    subject = get_object_or_404(Subject, id=subject_id)
-    subject.is_active = not subject.is_active
-    subject.save()
-    status_text = "activated" if subject.is_active else "deactivated"
-    message = f"Subject {status_text} successfully"
-
-    if not subject.is_active and subject.lessons.count() > 0:
-        message += f" ({subject.lessons.count()} associated lesson(s) are now hidden)"
-
-    return Response({
-        "message": message,
-        "is_active": subject.is_active
-    }, status=status.HTTP_200_OK)
+# @api_view(['PATCH'])
+# @permission_classes([IsAdminUserRole])
+# def admin_toggle_subject_status(request, subject_id):
+#     subject = get_object_or_404(Subject, id=subject_id)
+#     subject.is_active = not subject.is_active
+#     subject.save()
+#     status_text = "activated" if subject.is_active else "deactivated"
+#     message = f"Subject {status_text} successfully"
+#
+#     if not subject.is_active and subject.lessons.count() > 0:
+#         message += f" ({subject.lessons.count()} associated lesson(s) are now hidden)"
+#
+#     return Response({
+#         "message": message,
+#         "is_active": subject.is_active
+#     }, status=status.HTTP_200_OK)
 
 
 
