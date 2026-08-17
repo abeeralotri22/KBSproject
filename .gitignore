@@ -18,3 +18,4 @@ graph_engine/ocr/README.md
 venv/
 __pycache__/
 *.pyc
+graph_engine/nlp/archive/

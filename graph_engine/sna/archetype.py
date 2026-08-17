@@ -6,7 +6,12 @@ CAUSAL_MARKERS = ["يؤدي", "يسبب", "تسبب", "نتج", "نتيجة", "�
                   "حفز", "نشئ", "ينشأ", "حرض"]
 
 
-RESOLUTION_MARKERS = ["يخلص", "يعالج", "يمنع", "يقي", "يشفي", "يريح", "يخفف"]
+# roots, not conjugated forms — a hand-written lesson might phrase this as
+# "يخلص من" (verb) but an LLM-extracted one might write "التخلص من" (masdar/
+# noun form of the same root). "يخلص" isn't a substring of "التخلص" (different
+# leading letter), so matching on conjugated forms silently misses phrasing
+# variants that mean the same thing. Same fix as CAUSAL_MARKERS already uses.
+RESOLUTION_MARKERS = ["خلص", "عالج", "منع", "يقي", "وقي", "شفي", "ريح", "خفف"]
 
 # fraction of nodes with real branching/convergence (in- or out-degree >= 2).
 # Below this, the graph is a near-linear path (a process/causal chain) where

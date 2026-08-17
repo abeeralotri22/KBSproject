@@ -4,8 +4,10 @@ import os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SNA = os.path.join(ROOT, "sna")
+NLP = os.path.join(ROOT, "nlp")
 
 steps = [
+    (NLP,  "extract_lesson.py"),
     (ROOT, "createandupdategraph.py"),
     (ROOT, "filter_graph.py"),
     (SNA,  "1_sna.py"),

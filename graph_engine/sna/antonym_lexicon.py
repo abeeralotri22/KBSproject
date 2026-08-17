@@ -45,9 +45,11 @@ def negate_relation(relation):
         return relation
     if relation in ANTONYMS:
         return ANTONYMS[relation]
-    # a root match replaces the WHOLE relation, not a spliced-in substring
+    # a root match replaces the WHOLE relation, not a spliced-in substring.
+    # keys under 3 characters are skipped here — too short to be a safe
+    # substring root (e.g. "هي"  as a substring  also matches inside "تنتهي"
     for key, antonym in ANTONYMS.items():
-        if key in relation:
+        if len(key) >= 3 and key in relation:
             return antonym
     # already a negative phrase in the source (e.g. "لم ينجح") — its antonym
     # is the affirmative, so strip the negation instead of returning it
