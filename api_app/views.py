@@ -621,4 +621,21 @@ def admin_top_users(request):
         "top_users": serializer.data
     }, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_story(request, lesson_id):
+    result = generate_story_for_lesson(
+        user=request.user,
+        lesson_id=lesson_id
+    )
 
+    if not result["success"]:
+        return Response(
+            result,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    return Response(
+        result,
+        status=status.HTTP_200_OK
+    )
