@@ -23,7 +23,7 @@ JUDY_API_URL = "https://judy4444-text2tale-nlp.hf.space/generate_graph"
 KNOWN_TEXTS_DIR = HERE / "known_texts"
 
 sys.path.insert(0, str(HERE.parent / "sna"))
-from archetype import CAUSAL_MARKERS  # noqa: E402 — same list new_sna_impact2.py's classify_chain_subtype uses
+from archetype import CAUSAL_MARKERS  # type: ignore[import]  # noqa: E402 — same list new_sna_impact2.py's classify_chain_subtype uses
 
 
 LOAD_BEARING_TYPES = ["حدث", "احداث", "فعل", "نوع", "عملية", "عملية حيوية",
