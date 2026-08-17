@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
-from .views import generate_story
+#from .views import generate_story
 urlpatterns = [
     # register & login
     path('register/', views.register, name='register'),###########
@@ -15,29 +15,32 @@ urlpatterns = [
     # Profile
     path('profile/', views.update_profile, name='update profile'),
     path('get_profile/', views.get_profile, name='get profile'),
-    path('change_password/', views.change_password, name='change the password'),############
+    path('change_password/', views.change_password, name='change the password'),
 
     # Subjects For Customer
     path('subjects/all/', views.get_subjects, name='get_all_subjects'),
     path('subjects/choose/', views.chosen_subjects, name='choose'),
+    path('subjects/chosen/',views.get_enrolled_subjects, name='get-enrolled-subjects'),
 
     #Lesson
     path('lesson/add/', views.add_lesson, name='adding_lesson'),
+
     path(
         'lesson/add-ocr/',
         views.add_lesson_from_ocr,
         name='adding_lesson_from_ocr'
     ),
 
+
+
     #history###############
-    path('api/user/subjects/', views.get_user_subjects_history, name='user-subjects'),
-    path('api/user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
+    path('user/subjects/', views.get_user_subjects_history, name='user-subjects'),
+    path('user/subjects/<int:subject_id>/', views.get_subject_detail_history, name='user-subject-detail'),
 
-    #review#################
-    path('api/stories/<int:story_id>/review/', views.review_story, name='review-story'),
+    #review
+    path('stories/<int:story_id>/review/', views.review_story, name='review-story'),
 
-    #favorite######################
-
+    #favorite
     path('user/favorites/', views.get_favorite_stories, name='get-favorites'),
     path('user/favorites/<int:story_id>/add/', views.add_to_favorites, name='add-favorite'),
     path('user/favorites/<int:story_id>/remove/', views.remove_from_favorites, name='remove-favorite'),
@@ -48,7 +51,7 @@ urlpatterns = [
     path('users/<int:user_id>/toggle-status/', views.toggle_customer_status, name='toggle_customer_status'),
     path('subjects/add/', views.admin_create_subject, name='admin_create_subject'),
     path('subjects/', views.admin_get_subjects, name='admin-get-subjects'),
-    path('subjects/<int:subject_id>/delete/', views.admin_toggle_subject_status, name='admin_delete_subject'),
+    path('subjects/<int:subject_id>/toggle/', views.admin_toggle_subject_status, name='admin_toggle_subject_status'),
     path('stories/', views.admin_get_all_lessons, name='get_all_lessons_and_stories'),
     path('stories/<int:lesson_id>/', views.admin_get_lesson_detail, name='get_lesson_details'),
     #statistics

@@ -11,7 +11,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from graph_engine.ocr.ocr_extract import extract_text_from_image
+
 from .story_service import generate_story_for_lesson
+
+from django.shortcuts import get_object_or_404
+
 from . import models
 from .models import CustomUser, Subject, Lesson, Story, StoryHistory
 from .serializers import RegisterSerializer, UpdateProfileSerializer, UserProfileSerializer, ChangePasswordSerializer, \
@@ -170,7 +174,7 @@ def admin_get_subjects(request):
         "subjects": serializer.data
     }, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
+@api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def chosen_subjects(request):
     user = request.user
@@ -184,6 +188,19 @@ def chosen_subjects(request):
         }, status=status.HTTP_200_OK)
 
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_enrolled_subjects(request):
+    subjects = request.user.subjects.filter(is_active=True).order_by('name')
+    serializer = SubjectSerializer(subjects, many=True)
+    return Response({
+        "message": "Enrolled subjects fetched successfully",
+        "enrolled_subjects": serializer.data,
+        "total_count": subjects.count()
+    }, status=status.HTTP_200_OK)
+
 
 
 
@@ -310,6 +327,8 @@ def review_story(request, story_id):
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
 
 #History
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_user_subjects_history(request):
     subjects = Subject.objects.filter(lessons__user=request.user).distinct().order_by('name')
     serializer = SubjectSerializer(subjects, many=True)
@@ -367,7 +386,7 @@ def remove_from_favorites(request, story_id):
     updated_count = Story.objects.filter(id=story_id, lesson__user=request.user).update(is_favorite=False)
     if updated_count == 0:
         return Response({"error": "Story not found."}, status=status.HTTP_404_NOT_FOUND)
-    return Response({"message": "Story added to favorites."}, status=status.HTTP_200_OK)
+    return Response({"message": "Story removed from favorites."}, status=status.HTTP_200_OK)
 
 
 
@@ -376,15 +395,16 @@ def remove_from_favorites(request, story_id):
 @api_view(['GET'])
 @permission_classes([IsAdminUserRole])
 def get_all_users(request):
-    users = CustomUser.objects.filter(role = 'customer').order_by('-date_joined')
-    search = request.query_params.get('search')
-    if search:
-        users = users.filter(
-            models.Q(first_name__icontains=search) |
-            models.Q(last_name__icontains=search) |
-            models.Q(email__icontains=search)
-
-        )
+    users = CustomUser.objects.filter(role='customer').order_by('-date_joined')
+    first_name = request.query_params.get('first_name')
+    if first_name:
+        users = users.filter(first_name__icontains=first_name)
+    last_name = request.query_params.get('last_name')
+    if last_name:
+        users = users.filter(last_name__icontains=last_name)
+    email = request.query_params.get('email')
+    if email:
+        users = users.filter(email__icontains=email)
     is_active_param = request.query_params.get('is_active')
     if is_active_param is not None:
         if is_active_param.lower() in ['true', '1', 'yes']:
@@ -401,7 +421,6 @@ def get_all_users(request):
         "total_users": users.count(),
         "users": serializer.data
     })
-
 
 
 @api_view(['GET'])
@@ -473,22 +492,24 @@ def admin_create_subject(request):
     return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['DELETE'])
+
+
+
+@api_view(['PATCH'])
 @permission_classes([IsAdminUserRole])
 def admin_toggle_subject_status(request, subject_id):
-    subject = Subject.objects.get(id=subject_id)
-    if not subject:
-        return Response({
-            "error": "Subject not found"
-        }, status=status.HTTP_404_NOT_FOUND)
-    lesson_count = subject.lessons.count()
-    subject.is_active = False;
+    subject = get_object_or_404(Subject, id=subject_id)
+    subject.is_active = not subject.is_active
     subject.save()
-    message = "Subject deleted successfully"
-    if lesson_count > 0:
-        message += f" (along with {lesson_count} associated lesson(s))"
+    status_text = "activated" if subject.is_active else "deactivated"
+    message = f"Subject {status_text} successfully"
+
+    if not subject.is_active and subject.lessons.count() > 0:
+        message += f" ({subject.lessons.count()} associated lesson(s) are now hidden)"
+
     return Response({
-        "message": message
+        "message": message,
+        "is_active": subject.is_active
     }, status=status.HTTP_200_OK)
 
 
