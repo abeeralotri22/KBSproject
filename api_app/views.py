@@ -406,12 +406,11 @@ def get_all_users(request):
     if email:
         users = users.filter(email__icontains=email)
     is_active_param = request.query_params.get('is_active')
-    if is_active_param is not None:
+    if is_active_param:
         if is_active_param.lower() in ['true', '1', 'yes']:
             users = users.filter(is_active=True)
         elif is_active_param.lower() in ['false', '0', 'no']:
             users = users.filter(is_active=False)
-
     paginator = UserPagination()
     paginated_users = paginator.paginate_queryset(users, request)
     serializer = UserProfileSerializer(paginated_users, many=True)
