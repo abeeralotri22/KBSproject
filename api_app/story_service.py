@@ -7,7 +7,7 @@ import importlib.util
 from django.conf import settings
 from django.db import transaction
 
-from .models import Lesson, StoryHistory
+from .models import Lesson, StoryHistory,Story
 
 
 def generate_story_for_lesson(user, lesson_id):
@@ -1137,22 +1137,22 @@ def generate_story_for_lesson(user, lesson_id):
             "pipeline_outputs": pipeline_outputs
         }
 
+
     # ============================================================
-    # 27. حفظ StoryHistory
-    # ============================================================
+# 27. حفظ القصة في Story
+# ============================================================
 
     try:
 
         with transaction.atomic():
 
-            history = (
-                StoryHistory.objects.create(
-                    user=user,
-                    lesson=lesson,
-                    enhanced_story=str(
-                        enhanced_story
-                    )
-                )
+            story = Story.objects.create(
+                lesson=lesson,
+                title="قصة تعليمية",
+                content=str(enhanced_story),
+                initial_rating=1,
+                review_comment=None,
+                is_favorite=False
             )
 
     except Exception as e:
@@ -1161,8 +1161,7 @@ def generate_story_for_lesson(user, lesson_id):
             "success": False,
             "message": (
                 "تم تنفيذ الـpipeline وتوليد "
-                "القصة، لكن فشل حفظ النتيجة "
-                "في History: "
+                "القصة، لكن فشل حفظ القصة في Story: "
                 f"{str(e)}"
             ),
             "pipeline_outputs": pipeline_outputs
@@ -1181,7 +1180,7 @@ def generate_story_for_lesson(user, lesson_id):
             "وحفظها في السجل بنجاح."
         ),
 
-        "history_id": history.id,
+        "story_id": story.id,
 
         "lesson_id": lesson.id,
 
