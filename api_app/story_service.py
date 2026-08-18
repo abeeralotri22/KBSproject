@@ -248,9 +248,9 @@ def generate_story_for_lesson(user, lesson_id):
     # 7. ملفات الناتج المتوقعة من extract_lesson
     # ============================================================
 
-    llm_output_file = os.path.join(
+    relation_extraction_file = os.path.join(
         nlp_directory,
-        "llm_output.json"
+        "relation_extraction.json"
     )
 
     # ============================================================
@@ -534,23 +534,23 @@ def generate_story_for_lesson(user, lesson_id):
     # ============================================================
 
     print(
-        "\nChecking llm_output.json:"
+        "\nChecking relation_extraction.json:"
     )
 
     print(
-        llm_output_file
+        relation_extraction_file
     )
 
     if not os.path.isfile(
-            llm_output_file
+            relation_extraction_file
     ):
 
         return {
             "success": False,
             "message": (
                 "انتهى run_pipeline.py بنجاح "
-                "لكن لم يتم العثور على llm_output.json:\n"
-                f"{llm_output_file}"
+                "لكن لم يتم العثور على relation_extraction.json:\n"
+                f"{relation_extraction_file}"
             ),
             "pipeline_outputs": pipeline_outputs
         }
@@ -562,7 +562,7 @@ def generate_story_for_lesson(user, lesson_id):
     try:
 
         with open(
-                llm_output_file,
+                relation_extraction_file,
                 "r",
                 encoding="utf-8"
         ) as f:
@@ -577,7 +577,7 @@ def generate_story_for_lesson(user, lesson_id):
         return {
             "success": False,
             "message": (
-                "تعذر قراءة llm_output.json: "
+                "تعذر قراءة relation_extraction.json: "
                 f"{str(e)}"
             ),
             "pipeline_outputs": pipeline_outputs
@@ -592,7 +592,7 @@ def generate_story_for_lesson(user, lesson_id):
         return {
             "success": False,
             "message": (
-                "llm_output.json فارغ."
+                "relation_extraction.json فارغ."
             ),
             "pipeline_outputs": pipeline_outputs
         }
@@ -605,8 +605,7 @@ def generate_story_for_lesson(user, lesson_id):
         return {
             "success": False,
             "message": (
-                "llm_output.json لا يحتوي على "
-                "nodes أو edges."
+                "relation_extraction.json لا يحتوي على nodes أو edges."
             ),
             "pipeline_outputs": pipeline_outputs
         }
@@ -638,7 +637,7 @@ def generate_story_for_lesson(user, lesson_id):
         try:
 
             with open(
-                    llm_output_file,
+                    relation_extraction_file,
                     "w",
                     encoding="utf-8"
             ) as f:
@@ -1212,8 +1211,8 @@ def generate_story_for_lesson(user, lesson_id):
                 input_text_file
             ),
 
-            "llm_output": (
-                llm_output_file
+            "relation_extraction": (
+                relation_extraction_file
             ),
 
             "story_elements": (
