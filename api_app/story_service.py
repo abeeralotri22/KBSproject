@@ -4,34 +4,38 @@ import subprocess
 import sys
 import importlib.util
 
-import requests
-
 from django.conf import settings
 from django.db import transaction
 
 from .models import Lesson, StoryHistory
 
 
-NLP_API_URL = "https://judy4444-text2tale-nlp.hf.space/generate_graph"
-
-
 def generate_story_for_lesson(user, lesson_id):
     """
     توليد قصة للدرس عبر الـ NLP + Knowledge Graph + SNA + creatingStory.
 
-    Pipeline:
+    Pipeline الجديد:
 
     1. جلب الدرس.
-    2. إرسال محتوى الدرس إلى NLP API.
-    3. حفظ graph الناتج.
-    4. تشغيل createandupdategraph.py.
-    5. تشغيل filter_graph.py.
-    6. تشغيل خطوات SNA.
-    7. تشغيل antonym.py.
-    8. قراءة story_elements.json.
-    9. تشغيل creatingStory.py.
-    10. تحسين القصة بواسطة Gemini.
-    11. حفظ القصة في StoryHistory.
+    2. كتابة محتوى الدرس إلى:
+           graph_engine/nlp/input_text.txt
+    3. تشغيل run_pipeline.py.
+       وهذا الملف يتولى:
+           extract_lesson.py
+           createandupdategraph.py
+           filter_graph.py
+           1_sna.py
+           new_sna_impact2.py
+           new_sna_edge_impact2.py
+           new_sna_plot_graph.py
+           new_sna_plot_graph_filtered.py
+           antonym.py
+    4. قراءة llm_output.json الناتج من extract_lesson.py.
+    5. التأكد من ملفات SNA الناتجة.
+    6. قراءة story_elements.json.
+    7. تشغيل creatingStory.py.
+    8. تحسين القصة بواسطة Gemini.
+    9. حفظ القصة في StoryHistory.
 
     ملاحظة مهمة:
     antonym_plot.json ليس ملفًا إلزاميًا.
@@ -48,6 +52,7 @@ def generate_story_for_lesson(user, lesson_id):
     # ============================================================
 
     try:
+
         lesson = (
             Lesson.objects
             .select_related("subject")
@@ -58,123 +63,21 @@ def generate_story_for_lesson(user, lesson_id):
         )
 
     except Lesson.DoesNotExist:
+
         return {
             "success": False,
             "message": "الدرس غير موجود أو لا تملك صلاحية الوصول إليه."
         }
 
     if not lesson.content or not lesson.content.strip():
+
         return {
             "success": False,
             "message": "محتوى الدرس فارغ."
         }
 
     # ============================================================
-    # 2. الاتصال بـ NLP
-    # ============================================================
-
-    payload = {
-        "text": lesson.content
-    }
-
-    try:
-
-        print("\n" + "=" * 70)
-        print("STARTING NLP API")
-        print("=" * 70)
-
-        print(f"URL: {NLP_API_URL}")
-
-        response = requests.post(
-            NLP_API_URL,
-            json=payload,
-            timeout=120
-        )
-
-        print(
-            f"NLP STATUS CODE: {response.status_code}"
-        )
-
-        response.raise_for_status()
-
-        result_data = response.json()
-
-        print("===== FINISHED NLP API =====")
-
-    except requests.exceptions.Timeout:
-
-        return {
-            "success": False,
-            "message": "انتهت مهلة الاتصال بخادم NLP."
-        }
-
-    except requests.exceptions.ConnectionError:
-
-        return {
-            "success": False,
-            "message": "تعذر الاتصال بخادم NLP."
-        }
-
-    except requests.exceptions.HTTPError:
-
-        return {
-            "success": False,
-            "message": "حدث خطأ من خادم NLP.",
-            "details": response.text
-        }
-
-    except requests.exceptions.RequestException as e:
-
-        return {
-            "success": False,
-            "message": (
-                f"حدث خطأ أثناء الاتصال بـ NLP: {str(e)}"
-            )
-        }
-
-    except ValueError:
-
-        return {
-            "success": False,
-            "message": (
-                "خادم NLP أعاد استجابة ليست JSON صحيحة."
-            )
-        }
-
-    # ============================================================
-    # 3. استخراج graph
-    # ============================================================
-
-    graph_data = result_data.get("graph")
-
-    if not graph_data:
-
-        return {
-            "success": False,
-            "message": "لم يُرجع NLP أي graph."
-        }
-
-    if (
-            "nodes" not in graph_data
-            or "edges" not in graph_data
-    ):
-
-        return {
-            "success": False,
-            "message": (
-                "الـgraph القادم من NLP "
-                "لا يحتوي على nodes أو edges."
-            )
-        }
-
-    print(
-        f"NLP GRAPH: "
-        f"{len(graph_data.get('nodes', []))} nodes, "
-        f"{len(graph_data.get('edges', []))} edges"
-    )
-
-    # ============================================================
-    # 4. تحديد المسارات
+    # 2. تحديد المسارات
     # ============================================================
 
     PROJECT_ROOT = os.path.abspath(
@@ -197,11 +100,23 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     print(
-        f"GRAPH ENGINE ROOT:\n{GRAPH_ENGINE_ROOT}"
+        "\n" + "=" * 70
+    )
+
+    print(
+        "GRAPH ENGINE ROOT:"
+    )
+
+    print(
+        GRAPH_ENGINE_ROOT
+    )
+
+    print(
+        "=" * 70
     )
 
     # ============================================================
-    # 5. حفظ NLP graph
+    # 3. تحديد مجلد NLP
     # ============================================================
 
     nlp_directory = os.path.join(
@@ -209,53 +124,92 @@ def generate_story_for_lesson(user, lesson_id):
         "nlp"
     )
 
-    os.makedirs(
+    if not os.path.isdir(nlp_directory):
+
+        return {
+            "success": False,
+            "message": (
+                "لم يتم العثور على مجلد nlp:\n"
+                f"{nlp_directory}"
+            )
+        }
+
+    # ============================================================
+    # 4. كتابة محتوى الدرس إلى input_text.txt
+    #
+    # extract_lesson.py يعتمد على هذا الملف.
+    # ============================================================
+
+    input_text_file = os.path.join(
         nlp_directory,
-        exist_ok=True
+        "input_text.txt"
     )
-
-    nlp_output_file = os.path.join(
-        nlp_directory,
-        "nlp4_output.json"
-    )
-
-    graph_to_save = dict(graph_data)
-
-    if (
-            "subject" not in graph_to_save
-            and lesson.subject
-    ):
-        graph_to_save["subject"] = (
-            lesson.subject.name
-        )
 
     try:
 
         with open(
-                nlp_output_file,
+                input_text_file,
                 "w",
                 encoding="utf-8"
         ) as f:
 
-            json.dump(
-                graph_to_save,
-                f,
-                ensure_ascii=False,
-                indent=4
+            f.write(
+                lesson.content.strip()
             )
 
         print(
-            "\nNLP graph saved to:"
+            "\n===== LESSON TEXT SAVED ====="
         )
-        print(nlp_output_file)
+
+        print(
+            f"INPUT TEXT:\n{input_text_file}"
+        )
 
     except OSError as e:
 
         return {
             "success": False,
             "message": (
-                "تعذر حفظ graph الناتج من NLP: "
+                "تعذر كتابة محتوى الدرس إلى "
+                "input_text.txt: "
                 f"{str(e)}"
+            )
+        }
+
+    # ============================================================
+    # 5. ملفات الـpipeline
+    #
+    # Django الآن لا يشغل كل ملف بشكل منفصل.
+    #
+    # يشغل run_pipeline.py فقط.
+    #
+    # run_pipeline.py مسؤول عن تشغيل:
+    #
+    # extract_lesson.py
+    # createandupdategraph.py
+    # filter_graph.py
+    # 1_sna.py
+    # new_sna_impact2.py
+    # new_sna_edge_impact2.py
+    # new_sna_plot_graph.py
+    # new_sna_plot_graph_filtered.py
+    # antonym.py
+    # ============================================================
+
+    run_pipeline_file = os.path.join(
+        GRAPH_ENGINE_ROOT,
+        "run_pipeline.py"
+    )
+
+    if not os.path.isfile(
+            run_pipeline_file
+    ):
+
+        return {
+            "success": False,
+            "message": (
+                "لم يتم العثور على run_pipeline.py:\n"
+                f"{run_pipeline_file}"
             )
         }
 
@@ -268,6 +222,18 @@ def generate_story_for_lesson(user, lesson_id):
         "sna"
     )
 
+    if not os.path.isdir(
+            sna_directory
+    ):
+
+        return {
+            "success": False,
+            "message": (
+                "لم يتم العثور على مجلد sna:\n"
+                f"{sna_directory}"
+            )
+        }
+
     results_directory = os.path.join(
         sna_directory,
         "results"
@@ -279,175 +245,20 @@ def generate_story_for_lesson(user, lesson_id):
     )
 
     # ============================================================
-    # 7. التحقق من ملفات الـpipeline
+    # 7. ملفات الناتج المتوقعة من extract_lesson
     # ============================================================
 
-    pipeline_files = [
-        os.path.join(
-            GRAPH_ENGINE_ROOT,
-            "createandupdategraph.py"
-        ),
-
-        os.path.join(
-            GRAPH_ENGINE_ROOT,
-            "filter_graph.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "1_sna.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "new_sna_impact2.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "new_sna_edge_impact2.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "new_sna_plot_graph.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "new_sna_plot_graph_filtered.py"
-        ),
-
-        os.path.join(
-            sna_directory,
-            "antonym.py"
-        ),
-    ]
-
-    missing_pipeline_files = [
-        path
-        for path in pipeline_files
-        if not os.path.isfile(path)
-    ]
-
-    if missing_pipeline_files:
-
-        return {
-            "success": False,
-            "message": (
-                    "ملفات الـpipeline التالية غير موجودة:\n"
-                    + "\n".join(missing_pipeline_files)
-            )
-        }
+    llm_output_file = os.path.join(
+        nlp_directory,
+        "llm_output.json"
+    )
 
     # ============================================================
-    # 8. تعريف خطوات الـpipeline
-    #
-    # نستخدم المسارات المطلقة بدل الاعتماد على cwd
-    # ============================================================
-
-    pipeline_steps = [
-
-        {
-            "name": "createandupdategraph.py",
-            "cwd": GRAPH_ENGINE_ROOT,
-            "script": os.path.join(
-                GRAPH_ENGINE_ROOT,
-                "createandupdategraph.py"
-            ),
-            "args": [
-                os.path.join(
-                    GRAPH_ENGINE_ROOT,
-                    "nlp",
-                    "nlp4_output.json"
-                )
-            ],
-            "timeout": 120,
-        },
-
-        {
-            "name": "filter_graph.py",
-            "cwd": GRAPH_ENGINE_ROOT,
-            "script": os.path.join(
-                GRAPH_ENGINE_ROOT,
-                "filter_graph.py"
-            ),
-            "args": [],
-            "timeout": 120,
-        },
-
-        {
-            "name": "1_sna.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "1_sna.py"
-            ),
-            "args": [],
-            "timeout": 120,
-        },
-
-        {
-            "name": "new_sna_impact2.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "new_sna_impact2.py"
-            ),
-            "args": [],
-            "timeout": 180,
-        },
-
-        {
-            "name": "new_sna_edge_impact2.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "new_sna_edge_impact2.py"
-            ),
-            "args": [],
-            "timeout": 180,
-        },
-
-        {
-            "name": "new_sna_plot_graph.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "new_sna_plot_graph.py"
-            ),
-            "args": [],
-            "timeout": 120,
-        },
-
-        {
-            "name": "new_sna_plot_graph_filtered.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "new_sna_plot_graph_filtered.py"
-            ),
-            "args": [],
-            "timeout": 120,
-        },
-
-        {
-            "name": "antonym.py",
-            "cwd": sna_directory,
-            "script": os.path.join(
-                sna_directory,
-                "antonym.py"
-            ),
-            "args": [],
-            "timeout": 120,
-        },
-    ]
-
-    # ============================================================
-    # 9. تشغيل الـpipeline
+    # 8. تشغيل run_pipeline.py
     # ============================================================
 
     pipeline_outputs = []
+
     current_step = None
 
     pipeline_env = os.environ.copy()
@@ -458,208 +269,243 @@ def generate_story_for_lesson(user, lesson_id):
     # مهم جدًا على Windows
     pipeline_env["PYTHONUTF8"] = "1"
 
+    pipeline_step = {
+        "name": "run_pipeline.py",
+        "cwd": GRAPH_ENGINE_ROOT,
+        "script": run_pipeline_file,
+        "args": [],
+        "timeout": 900,
+    }
+
     try:
 
-        for step in pipeline_steps:
+        current_step = pipeline_step["name"]
 
-            current_step = step["name"]
+        script = pipeline_step["script"]
+        cwd = pipeline_step["cwd"]
+        args = pipeline_step["args"]
+        timeout = pipeline_step["timeout"]
 
-            script = step["script"]
-            cwd = step["cwd"]
-            args = step["args"]
-            timeout = step["timeout"]
+        command = [
+            sys.executable,
+            "-u",
+            script,
+            *args
+        ]
 
-            command = [
-                sys.executable,
-                "-u",
-                script,
-                *args
-            ]
+        print(
+            "\n" + "=" * 70
+        )
 
-            print("\n" + "=" * 70)
-            print(
-                f"STARTING: {step['name']}"
+        print(
+            "STARTING: run_pipeline.py"
+        )
+
+        print(
+            "=" * 70
+        )
+
+        print(
+            f"CWD: {cwd}"
+        )
+
+        print(
+            f"PYTHON: {sys.executable}"
+        )
+
+        print(
+            f"SCRIPT: {script}"
+        )
+
+        print(
+            f"COMMAND: {command}"
+        )
+
+        print(
+            f"TIMEOUT: {timeout} seconds"
+        )
+
+        print(
+            "\n" + "=" * 70
+        )
+
+        # --------------------------------------------------------
+        # تشغيل العملية
+        # --------------------------------------------------------
+
+        try:
+
+            result = subprocess.run(
+                command,
+                cwd=cwd,
+                env=pipeline_env,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=timeout
             )
-            print("=" * 70)
+
+        except subprocess.TimeoutExpired as timeout_error:
+
+            stdout_text = ""
+            stderr_text = ""
+
+            if timeout_error.stdout:
+
+                if isinstance(
+                        timeout_error.stdout,
+                        bytes
+                ):
+
+                    stdout_text = (
+                        timeout_error.stdout
+                        .decode(
+                            "utf-8",
+                            errors="replace"
+                        )
+                    )
+
+                else:
+
+                    stdout_text = str(
+                        timeout_error.stdout
+                    )
+
+            if timeout_error.stderr:
+
+                if isinstance(
+                        timeout_error.stderr,
+                        bytes
+                ):
+
+                    stderr_text = (
+                        timeout_error.stderr
+                        .decode(
+                            "utf-8",
+                            errors="replace"
+                        )
+                    )
+
+                else:
+
+                    stderr_text = str(
+                        timeout_error.stderr
+                    )
 
             print(
-                f"CWD: {cwd}"
+                "\nTIMEOUT!"
             )
 
             print(
-                f"PYTHON: {sys.executable}"
-            )
-
-            print(
-                f"SCRIPT: {script}"
-            )
-
-            print(
-                f"COMMAND: {command}"
+                "STEP: run_pipeline.py"
             )
 
             print(
                 f"TIMEOUT: {timeout} seconds"
             )
 
-            # ----------------------------------------------------
-            # تشغيل العملية
-            # ----------------------------------------------------
-
-            try:
-
-                result = subprocess.run(
-                    command,
-                    cwd=cwd,
-                    env=pipeline_env,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    timeout=timeout
-                )
-
-            except subprocess.TimeoutExpired as timeout_error:
-
-                stdout_text = ""
-
-                stderr_text = ""
-
-                if timeout_error.stdout:
-
-                    if isinstance(
-                            timeout_error.stdout,
-                            bytes
-                    ):
-                        stdout_text = (
-                            timeout_error.stdout
-                            .decode(
-                                "utf-8",
-                                errors="replace"
-                            )
-                        )
-                    else:
-                        stdout_text = str(
-                            timeout_error.stdout
-                        )
-
-                if timeout_error.stderr:
-
-                    if isinstance(
-                            timeout_error.stderr,
-                            bytes
-                    ):
-                        stderr_text = (
-                            timeout_error.stderr
-                            .decode(
-                                "utf-8",
-                                errors="replace"
-                            )
-                        )
-                    else:
-                        stderr_text = str(
-                            timeout_error.stderr
-                        )
-
-                print(
-                    "\nTIMEOUT!"
-                )
-
-                print(
-                    f"STEP: {step['name']}"
-                )
-
-                print(
-                    f"TIMEOUT: {timeout} seconds"
-                )
-
-                print(
-                    "STDOUT BEFORE TIMEOUT:"
-                )
-
-                print(stdout_text)
-
-                print(
-                    "STDERR BEFORE TIMEOUT:"
-                )
-
-                print(stderr_text)
-
-                pipeline_outputs.append(
-                    {
-                        "script": step["name"],
-                        "return_code": None,
-                        "stdout": stdout_text,
-                        "stderr": stderr_text,
-                        "timeout": True,
-                    }
-                )
-
-                return {
-                    "success": False,
-                    "message": (
-                        "انتهت مهلة تشغيل "
-                        f"{step['name']} بعد "
-                        f"{timeout} ثانية."
-                    ),
-                    "current_step": step["name"],
-                    "pipeline_outputs": pipeline_outputs
-                }
-
-            # ----------------------------------------------------
-            # انتهاء العملية
-            # ----------------------------------------------------
-
-            print("\n" + "=" * 70)
             print(
-                f"FINISHED: {step['name']}"
-            )
-            print("=" * 70)
-
-            print(
-                f"RETURN CODE: {result.returncode}"
+                "\nSTDOUT BEFORE TIMEOUT:"
             )
 
             print(
-                "\nSTDOUT:"
+                stdout_text
             )
-
-            print(result.stdout)
 
             print(
-                "\nSTDERR:"
+                "\nSTDERR BEFORE TIMEOUT:"
             )
 
-            print(result.stderr)
+            print(
+                stderr_text
+            )
 
             pipeline_outputs.append(
                 {
-                    "script": step["name"],
-                    "return_code": result.returncode,
-                    "stdout": result.stdout,
-                    "stderr": result.stderr,
+                    "script": "run_pipeline.py",
+                    "return_code": None,
+                    "stdout": stdout_text,
+                    "stderr": stderr_text,
+                    "timeout": True,
                 }
             )
 
-            # ----------------------------------------------------
-            # فشل العملية
-            # ----------------------------------------------------
+            return {
+                "success": False,
+                "message": (
+                    "انتهت مهلة تشغيل "
+                    f"run_pipeline.py بعد "
+                    f"{timeout} ثانية."
+                ),
+                "current_step": "run_pipeline.py",
+                "pipeline_outputs": pipeline_outputs
+            }
 
-            if result.returncode != 0:
+        # --------------------------------------------------------
+        # انتهاء العملية
+        # --------------------------------------------------------
 
-                return {
-                    "success": False,
-                    "message": (
-                        f"فشل تشغيل {step['name']}."
-                    ),
-                    "current_step": step["name"],
-                    "return_code": result.returncode,
-                    "stdout": result.stdout,
-                    "stderr": result.stderr,
-                    "pipeline_outputs": pipeline_outputs
-                }
+        print(
+            "\n" + "=" * 70
+        )
+
+        print(
+            "FINISHED: run_pipeline.py"
+        )
+
+        print(
+            "=" * 70
+        )
+
+        print(
+            f"RETURN CODE: {result.returncode}"
+        )
+
+        print(
+            "\nSTDOUT:"
+        )
+
+        print(
+            result.stdout
+        )
+
+        print(
+            "\nSTDERR:"
+        )
+
+        print(
+            result.stderr
+        )
+
+        pipeline_outputs.append(
+            {
+                "script": "run_pipeline.py",
+                "return_code": result.returncode,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+            }
+        )
+
+        # --------------------------------------------------------
+        # فشل الـpipeline
+        # --------------------------------------------------------
+
+        if result.returncode != 0:
+
+            return {
+                "success": False,
+                "message": (
+                    "فشل تشغيل run_pipeline.py."
+                ),
+                "current_step": "run_pipeline.py",
+                "return_code": result.returncode,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "pipeline_outputs": pipeline_outputs
+            }
 
     except Exception as e:
 
@@ -667,20 +513,197 @@ def generate_story_for_lesson(user, lesson_id):
             "\nPIPELINE EXCEPTION:"
         )
 
-        print(str(e))
+        print(
+            str(e)
+        )
 
         return {
             "success": False,
             "message": (
-                "حدث خطأ أثناء تشغيل الـpipeline: "
-                f"{str(e)}"
+                "حدث خطأ أثناء تشغيل "
+                f"run_pipeline.py: {str(e)}"
             ),
             "current_step": current_step,
             "pipeline_outputs": pipeline_outputs
         }
 
     # ============================================================
-    # 10. التأكد من story_elements.json
+    # 9. التأكد من llm_output.json
+    #
+    # هذا هو الناتج الجديد من extract_lesson.py.
+    # ============================================================
+
+    print(
+        "\nChecking llm_output.json:"
+    )
+
+    print(
+        llm_output_file
+    )
+
+    if not os.path.isfile(
+            llm_output_file
+    ):
+
+        return {
+            "success": False,
+            "message": (
+                "انتهى run_pipeline.py بنجاح "
+                "لكن لم يتم العثور على llm_output.json:\n"
+                f"{llm_output_file}"
+            ),
+            "pipeline_outputs": pipeline_outputs
+        }
+
+    # ============================================================
+    # 10. قراءة llm_output.json
+    # ============================================================
+
+    try:
+
+        with open(
+                llm_output_file,
+                "r",
+                encoding="utf-8"
+        ) as f:
+
+            graph_data = json.load(f)
+
+    except (
+            OSError,
+            json.JSONDecodeError
+    ) as e:
+
+        return {
+            "success": False,
+            "message": (
+                "تعذر قراءة llm_output.json: "
+                f"{str(e)}"
+            ),
+            "pipeline_outputs": pipeline_outputs
+        }
+
+    # ============================================================
+    # 11. التحقق من graph
+    # ============================================================
+
+    if not graph_data:
+
+        return {
+            "success": False,
+            "message": (
+                "llm_output.json فارغ."
+            ),
+            "pipeline_outputs": pipeline_outputs
+        }
+
+    if (
+            "nodes" not in graph_data
+            or "edges" not in graph_data
+    ):
+
+        return {
+            "success": False,
+            "message": (
+                "llm_output.json لا يحتوي على "
+                "nodes أو edges."
+            ),
+            "pipeline_outputs": pipeline_outputs
+        }
+
+    print(
+        "\n===== LLM OUTPUT FOUND ====="
+    )
+
+    print(
+        f"LLM GRAPH: "
+        f"{len(graph_data.get('nodes', []))} nodes, "
+        f"{len(graph_data.get('edges', []))} edges"
+    )
+
+    # ============================================================
+    # 12. إضافة subject إذا لم يكن موجودًا
+    # ============================================================
+
+    if (
+            "subject" not in graph_data
+            and lesson.subject
+    ):
+
+        graph_data["subject"] = (
+            lesson.subject.name
+        )
+
+        # تحديث الملف بعد إضافة subject
+        try:
+
+            with open(
+                    llm_output_file,
+                    "w",
+                    encoding="utf-8"
+            ) as f:
+
+                json.dump(
+                    graph_data,
+                    f,
+                    ensure_ascii=False,
+                    indent=4
+                )
+
+        except OSError as e:
+
+            return {
+                "success": False,
+                "message": (
+                    "تمت قراءة llm_output.json "
+                    "لكن تعذر تحديث subject: "
+                    f"{str(e)}"
+                ),
+                "pipeline_outputs": pipeline_outputs
+            }
+
+    # ============================================================
+    # 13. التأكد من ملفات SNA الناتجة
+    # ============================================================
+
+    required_sna_files = [
+
+        os.path.join(
+            results_directory,
+            "story_elements.json"
+        ),
+
+        os.path.join(
+            results_directory,
+            "sna_plot_graph.json"
+        ),
+
+        os.path.join(
+            results_directory,
+            "sna_plot_graph_filtered.json"
+        ),
+    ]
+
+    missing_sna_files = [
+        path
+        for path in required_sna_files
+        if not os.path.isfile(path)
+    ]
+
+    if missing_sna_files:
+
+        return {
+            "success": False,
+            "message": (
+                    "انتهى الـpipeline لكن بعض ملفات النتائج "
+                    "المطلوبة لم يتم توليدها:\n"
+                    + "\n".join(missing_sna_files)
+            ),
+            "pipeline_outputs": pipeline_outputs
+        }
+
+    # ============================================================
+    # 14. story_elements.json
     # ============================================================
 
     story_elements_file = os.path.join(
@@ -711,7 +734,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 11. قراءة story_elements
+    # 15. قراءة story_elements
     # ============================================================
 
     try:
@@ -743,7 +766,7 @@ def generate_story_for_lesson(user, lesson_id):
     )
 
     # ============================================================
-    # 12. creatingStory
+    # 16. creatingStory
     # ============================================================
 
     creating_story_directory = os.path.join(
@@ -770,7 +793,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 13. ملفات creatingStory
+    # 17. ملفات creatingStory
     # ============================================================
 
     sna_graph_path = os.path.join(
@@ -789,12 +812,15 @@ def generate_story_for_lesson(user, lesson_id):
     )
 
     # ============================================================
-    # 14. الملفات الأساسية
+    # 18. الملفات الأساسية
     # ============================================================
 
     required_story_files = [
+
         sna_graph_path,
+
         sna_graph_filtered_path,
+
         story_elements_file
     ]
 
@@ -817,7 +843,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 15. antonym_plot.json اختياري
+    # 19. antonym_plot.json اختياري
     # ============================================================
 
     if os.path.isfile(
@@ -849,7 +875,7 @@ def generate_story_for_lesson(user, lesson_id):
         )
 
     # ============================================================
-    # 16. Gemini API Key
+    # 20. Gemini API Key
     # ============================================================
 
     gemini_api_key = os.environ.get(
@@ -868,7 +894,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 17. تحميل creatingStory.py
+    # 21. تحميل creatingStory.py
     # ============================================================
 
     try:
@@ -920,7 +946,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 18. التأكد من الدالة
+    # 22. التأكد من الدالة
     # ============================================================
 
     if not hasattr(
@@ -938,14 +964,22 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 19. تشغيل creatingStory
+    # 23. تشغيل creatingStory
     # ============================================================
 
     try:
 
-        print("\n" + "=" * 70)
-        print("STARTING creatingStory")
-        print("=" * 70)
+        print(
+            "\n" + "=" * 70
+        )
+
+        print(
+            "STARTING creatingStory"
+        )
+
+        print(
+            "=" * 70
+        )
 
         print(
             f"sna_graph_path:\n{sna_graph_path}"
@@ -1001,7 +1035,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 20. التحقق من نتيجة creatingStory
+    # 24. التحقق من نتيجة creatingStory
     # ============================================================
 
     if not isinstance(
@@ -1019,7 +1053,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 21. استخراج القصة
+    # 25. استخراج القصة
     # ============================================================
 
     original_story = (
@@ -1057,7 +1091,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 22. حفظ ملفات القصة
+    # 26. حفظ ملفات القصة
     # ============================================================
 
     generated_story_file = os.path.join(
@@ -1105,7 +1139,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 23. حفظ StoryHistory
+    # 27. حفظ StoryHistory
     # ============================================================
 
     try:
@@ -1136,7 +1170,7 @@ def generate_story_for_lesson(user, lesson_id):
         }
 
     # ============================================================
-    # 24. النتيجة النهائية
+    # 28. النتيجة النهائية
     # ============================================================
 
     return {
@@ -1152,7 +1186,11 @@ def generate_story_for_lesson(user, lesson_id):
 
         "lesson_id": lesson.id,
 
-        "subject": lesson.subject.name,
+        "subject": (
+            lesson.subject.name
+            if lesson.subject
+            else graph_data.get("subject")
+        ),
 
         "story": str(
             enhanced_story
@@ -1170,8 +1208,12 @@ def generate_story_for_lesson(user, lesson_id):
 
         "files": {
 
-            "nlp_output": (
-                nlp_output_file
+            "input_text": (
+                input_text_file
+            ),
+
+            "llm_output": (
+                llm_output_file
             ),
 
             "story_elements": (

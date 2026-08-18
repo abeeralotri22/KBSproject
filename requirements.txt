@@ -30,3 +30,5 @@ requests
 camel-tools
 google-genai==2.18.1
 tenacity==9.1.4
+python-dotenv==1.2.3
+pyvis

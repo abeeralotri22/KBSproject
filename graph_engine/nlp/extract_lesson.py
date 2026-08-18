@@ -7,12 +7,18 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from google.genai.errors import ServerError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 HERE = Path(__file__).resolve().parent
+# graph_engine/nlp -> graph_engine -> KBSproject
+PROJECT_ROOT = HERE.parent.parent
+# .env always wins — otherwise a stale $env: value set by hand earlier in this shell session silently takes priority over a corrected .env value
+load_dotenv(PROJECT_ROOT / ".env", override=True)
+
 INPUT_TEXT_PATH = HERE / "input_text.txt"
 OUTPUT_PATH = HERE / "llm_output.json"
 ARCHIVE_DIR = HERE / "archive"
@@ -101,9 +107,9 @@ FEW_SHOT_EXAMPLES = [
             ],
             "edges": [
                 {"source": "عقدة_1", "target": "عقدة_3",
-                    "type": "تسابقت للسيطرة على"},
+                 "type": "تسابقت للسيطرة على"},
                 {"source": "عقدة_2", "target": "عقدة_3",
-                    "type": "تسابقت للسيطرة على"},
+                 "type": "تسابقت للسيطرة على"},
                 {"source": "عقدة_3", "target": "عقدة_4", "type": "تقع على"},
                 {"source": "عقدة_2", "target": "عقدة_6", "type": "أرسلت"},
                 {"source": "عقدة_5", "target": "عقدة_6", "type": "قاد"},
@@ -111,10 +117,10 @@ FEW_SHOT_EXAMPLES = [
                 {"source": "عقدة_6", "target": "عقدة_7", "type": "بدأت في"},
                 {"source": "عقدة_6", "target": "عقدة_8", "type": "انسحبت في"},
                 {"source": "عقدة_9", "target": "عقدة_6",
-                    "type": "أجبرت على الانسحاب"},
+                 "type": "أجبرت على الانسحاب"},
                 {"source": "عقدة_1", "target": "عقدة_10", "type": "تحالفت مع"},
                 {"source": "عقدة_11", "target": "عقدة_1",
-                    "type": "افتتاحها زاد اهتمام"},
+                 "type": "افتتاحها زاد اهتمام"},
                 {"source": "عقدة_12", "target": "عقدة_13", "type": "أدت إلى ازدياد"},
                 {"source": "عقدة_13", "target": "عقدة_14", "type": "أدى إلى قيام"},
                 {"source": "عقدة_15", "target": "عقدة_14", "type": "قاد"},
@@ -150,17 +156,17 @@ FEW_SHOT_EXAMPLES = [
             "edges": [
                 {"source": "عقدة_1", "target": "عقدة_2", "type": "في"},
                 {"source": "عقدة_1", "target": "عقدة_3",
-                    "type": "يعتمد بشكل أساسي على"},
+                 "type": "يعتمد بشكل أساسي على"},
                 {"source": "عقدة_1", "target": "عقدة_4",
-                    "type": "يعتمد بشكل أساسي على"},
+                 "type": "يعتمد بشكل أساسي على"},
                 {"source": "عقدة_1", "target": "عقدة_5",
-                    "type": "يعتمد بشكل أساسي على"},
+                 "type": "يعتمد بشكل أساسي على"},
                 {"source": "عقدة_1", "target": "عقدة_6", "type": "لإنتاج"},
                 {"source": "عقدة_1", "target": "عقدة_7", "type": "لإنتاج"},
                 {"source": "عقدة_1", "target": "عقدة_8", "type": "لإنتاج"},
                 {"source": "عقدة_1", "target": "عقدة_9", "type": "لإنتاج"},
                 {"source": "عقدة_11", "target": "عقدة_10",
-                    "type": "عامل استقرار اقتصادي واجتماعي لـ"},
+                 "type": "عامل استقرار اقتصادي واجتماعي لـ"},
                 {"source": "عقدة_10", "target": "عقدة_11", "type": "حيازة وتربية"},
                 {"source": "عقدة_12", "target": "عقدة_13", "type": "ينتشر في"},
                 {"source": "عقدة_12", "target": "عقدة_14", "type": "ولا سيما في"},
