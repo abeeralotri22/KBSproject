@@ -4,6 +4,15 @@ import random
 from typing import Optional, List, Dict, Tuple
 from camel_tools.morphology.database import MorphologyDB
 from camel_tools.morphology.analyzer import Analyzer
+from google.genai.errors import ServerError, ClientError
+from tenacity import retry, retry_if_exception , stop_after_attempt, wait_exponential
+from dotenv import load_dotenv
+from pathlib import Path
+
+
+HERE = Path(__file__).resolve().parent
+PROJECT_ROOT = HERE.parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 try:
     db = MorphologyDB.builtin_db()
@@ -1547,15 +1556,56 @@ from pathlib import Path
 import sys
 
 from google import genai
+from google.genai.errors import ServerError, ClientError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stdin.reconfigure(encoding="utf-8")
 
 
+# كل موديل عنده سقف طلبات يومي منفصل (free tier)، فلما موديل يوصل لحده
+# (429 RESOURCE_EXHAUSTED) ننتقل للي بعده تلقائيًا بدل ما نوقف بالكامل.
+MODEL_FALLBACK_CHAIN = [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+]
+
+
+def _log_retry(retry_state):
+    exc = retry_state.outcome.exception()
+    wait = retry_state.next_action.sleep
+    print(f"الخادم مزدحم (503) — إعادة المحاولة {retry_state.attempt_number}/5 "
+          f"بعد {wait:.0f} ثانية... ({exc})")
+
+
+@retry(
+    retry=retry_if_exception_type(ServerError),
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=2, min=2, max=60),
+    before_sleep=_log_retry,
+    reraise=True,
+)
+def _refine_story_once(client, story_text, system_instruction, model):
+    from google.genai import types
+
+    response = client.models.generate_content(
+        model=model,
+        contents=story_text,
+        config=types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.7,
+        ),
+    )
+
+    if not response.text:
+        raise Exception("Gemini أعاد استجابة بدون نص.")
+
+    return response.text
+
+
 def refine_story_with_llm(story_text: str, api_key: str) -> str:
     from google import genai
-    from google.genai import types
 
     api_key = api_key.strip().strip('"').strip("'")
 
@@ -1582,19 +1632,22 @@ def refine_story_with_llm(story_text: str, api_key: str) -> str:
 12. أعد القصة المحسنة فقط دون مقدمة أو شرح أو تعليقات.
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=story_text,
-        config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=0.7,
-        ),
-    )
-
-    if not response.text:
-        raise Exception("Gemini أعاد استجابة بدون نص.")
-
-    return response.text
+    last_error = None
+    for i, model in enumerate(MODEL_FALLBACK_CHAIN):
+        try:
+            print(f"استخدام الموديل: {model}")
+            return _refine_story_once(client, story_text, system_instruction, model)
+        except ClientError as e:
+            if e.code == 429:
+                last_error = e
+                remaining = MODEL_FALLBACK_CHAIN[i + 1:]
+                if remaining:
+                    print(f"نفد سقف الموديل {model} (429) — "
+                          f"الانتقال إلى {remaining[0]}...")
+                    continue
+                print(f"نفد سقف كل الموديلات المتاحة ({', '.join(MODEL_FALLBACK_CHAIN)}).")
+            raise
+    raise last_error
 
 
 if __name__ == "__main__":
